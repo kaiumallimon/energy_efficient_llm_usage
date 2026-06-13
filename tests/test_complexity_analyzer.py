@@ -108,3 +108,15 @@ class TestResultShape:
         assert "rationale" in payload
         assert isinstance(payload["rationale"], list)
         assert "estimated_total_tokens" not in payload
+
+    def test_verbose_raw_prompt_signals(self, analyzer: ComplexityAnalyzer) -> None:
+        query = (
+            "Hey, could you please tell me, if you don't mind, "
+            "what is the capital of Bangladesh??"
+        )
+        result = analyzer.analyze(query)
+
+        assert result.level == ComplexityLevel.LOW
+        assert result.policy == OptimizationPolicy.AGGRESSIVE
+        assert result.signals["verbosity_score"] >= 0.25
+        assert result.signals["filler_score"] > 0

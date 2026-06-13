@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from src.analyzer.models import (
     ComplexityLevel,
     ComplexityResult,
@@ -8,6 +10,7 @@ from src.analyzer.models import (
 )
 from src.generator.models import ModelTier
 from src.optimizer.models import OptimizationResult
+from src.optimizer.phrases import CONSTRAINT_MARKERS
 
 TASK_INSTRUCTIONS: dict[TaskType, str] = {
     TaskType.FACTUAL: "Answer factual questions directly and accurately.",
@@ -47,6 +50,12 @@ RETRIEVAL_APPENDIX = (
     "If external or up-to-date information is required, state limitations clearly."
 )
 
+VERBOSITY_APPENDIX = (
+    "The user request has been condensed; preserve the original intent and constraints."
+)
+
+QUESTION_SPLIT_RE = re.compile(r"\?(?:\s+|$)")
+
 
 def select_model_tier(analysis: ComplexityResult) -> str:
     if analysis.level == ComplexityLevel.CRITICAL or analysis.policy == OptimizationPolicy.MINIMAL:
@@ -80,6 +89,7 @@ def build_system_prompt(analysis: ComplexityResult) -> tuple[str, list[str]]:
     safety_score = signals.get("safety_score", 0.0)
     constraint_score = signals.get("constraint_score", 0.0)
     retrieval_score = signals.get("retrieval_score", 0.0)
+    verbosity_score = signals.get("verbosity_score", 0.0)
 
     if safety_score >= 0.35:
         parts.append(SAFETY_APPENDIX)
@@ -93,19 +103,85 @@ def build_system_prompt(analysis: ComplexityResult) -> tuple[str, list[str]]:
         parts.append(RETRIEVAL_APPENDIX)
         notes.append("Added retrieval-limitation guidance.")
 
+    if verbosity_score >= 0.35 and analysis.policy != OptimizationPolicy.MINIMAL:
+        parts.append(VERBOSITY_APPENDIX)
+        notes.append("Added intent-preservation note for compressed raw prompt.")
+
     return " ".join(part for part in parts if part), notes
 
 
-def build_user_prompt(optimization: OptimizationResult) -> tuple[str, dict[str, str]]:
+def extract_constraints(query: str) -> list[str]:
+    constraints: list[str] = []
+    for pattern in CONSTRAINT_MARKERS:
+        for match in re.finditer(pattern, query, flags=re.IGNORECASE):
+            start = max(0, match.start() - 40)
+            end = min(len(query), match.end() + 80)
+            snippet = query[start:end].strip()
+            if snippet and snippet not in constraints:
+                constraints.append(snippet)
+    return constraints
+
+
+def split_questions(query: str) -> list[str]:
+    if "?" not in query:
+        return []
+
+    parts = QUESTION_SPLIT_RE.split(query.strip())
+    questions: list[str] = []
+    for part in parts:
+        cleaned = part.strip(" ,;")
+        if not cleaned:
+            continue
+        if not cleaned.endswith("?"):
+            cleaned = f"{cleaned}?"
+        questions.append(cleaned)
+    return questions
+
+
+def structure_request(query: str, analysis: ComplexityResult) -> tuple[str, list[str]]:
+    notes: list[str] = []
+    question_count = analysis.signals.get("question_count", 0)
+    multi_part_score = analysis.signals.get("multi_part_score", 0.0)
+
+    if question_count > 1 or multi_part_score >= 0.3:
+        questions = split_questions(query)
+        if len(questions) > 1:
+            lines = [f"{index}. {item}" for index, item in enumerate(questions, start=1)]
+            notes.append("Structured multi-part request as a numbered list.")
+            return "\n".join(lines), notes
+
+    constraints = extract_constraints(query)
+    if constraints:
+        constraint_block = "\n".join(f"- {item}" for item in constraints)
+        notes.append("Preserved explicit constraints in a dedicated section.")
+        return f"Request:\n{query}\n\nConstraints:\n{constraint_block}", notes
+
+    return query, notes
+
+
+def build_user_prompt(
+    optimization: OptimizationResult,
+    analysis: ComplexityResult,
+) -> tuple[str, dict[str, str]]:
     query = optimization.optimized_query
     context = optimization.optimized_context
     sections: dict[str, str] = {"query": query}
 
-    if not context:
-        return query, sections
+    structured_query, structure_notes = structure_request(query, analysis)
+    sections["request"] = structured_query
 
-    sections["context"] = context
-    user_prompt = f"Context:\n{context}\n\nRequest:\n{query}"
+    if context:
+        sections["context"] = context
+        if structured_query != query:
+            sections["query"] = query
+            user_prompt = f"Context:\n{context}\n\n{structured_query}"
+        else:
+            user_prompt = f"Context:\n{context}\n\nRequest:\n{structured_query}"
+    elif structured_query != query or structure_notes:
+        user_prompt = structured_query
+    else:
+        user_prompt = query
+
     return user_prompt, sections
 
 

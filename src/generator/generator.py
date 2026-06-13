@@ -22,7 +22,7 @@ class AdaptivePromptGenerator:
         optimization: OptimizationResult,
     ) -> GeneratedPrompt:
         system_prompt, notes = build_system_prompt(analysis)
-        user_prompt, sections = build_user_prompt(optimization)
+        user_prompt, sections = build_user_prompt(optimization, analysis)
         messages = build_messages(system_prompt, user_prompt)
         full_prompt = build_full_prompt(system_prompt, user_prompt)
 

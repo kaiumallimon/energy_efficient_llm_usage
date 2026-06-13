@@ -3,11 +3,10 @@ from __future__ import annotations
 from src.analyzer.models import ComplexityResult, OptimizationPolicy
 from src.optimizer.models import OptimizationResult
 from src.optimizer.rules import (
-    compress_redundancy,
     count_words,
     dedupe_lines,
     normalize_whitespace,
-    remove_fillers,
+    optimize_query_text,
     trim_context,
 )
 
@@ -39,20 +38,15 @@ class PromptOptimizer:
                 changes,
             )
 
-        optimized_query = normalize_whitespace(optimized_query)
-        if optimized_query != original_query:
-            changes.append("Normalized query whitespace.")
+        aggressive = policy == OptimizationPolicy.AGGRESSIVE
+        moderate = policy == OptimizationPolicy.MODERATE
 
-        if policy in {OptimizationPolicy.AGGRESSIVE, OptimizationPolicy.MODERATE}:
-            optimized_query, filler_changes = remove_fillers(
-                optimized_query,
-                aggressive=policy == OptimizationPolicy.AGGRESSIVE,
-            )
-            changes.extend(filler_changes)
-
-        if policy == OptimizationPolicy.AGGRESSIVE:
-            optimized_query, redundancy_changes = compress_redundancy(optimized_query)
-            changes.extend(redundancy_changes)
+        optimized_query, query_changes = optimize_query_text(
+            optimized_query,
+            aggressive=aggressive,
+            moderate=moderate or aggressive,
+        )
+        changes.extend(query_changes)
 
         if optimized_context:
             if policy in {OptimizationPolicy.AGGRESSIVE, OptimizationPolicy.CONSERVATIVE}:

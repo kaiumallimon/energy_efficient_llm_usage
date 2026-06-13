@@ -86,6 +86,9 @@ class ComplexityAnalyzer:
         ):
             score -= 6.0
 
+        if signals.verbosity_score >= 0.35 and signals.reasoning_score < 0.35:
+            score -= 4.0
+
         return max(0.0, min(100.0, score))
 
     def _level(self, score: float, signals: PromptSignals) -> ComplexityLevel:
@@ -163,6 +166,10 @@ class ComplexityAnalyzer:
             rationale.append("Large external context increases optimization risk.")
         if signals.retrieval_score >= 0.3:
             rationale.append("Retrieval or freshness requirements detected.")
+        if signals.verbosity_score >= 0.35:
+            rationale.append("High filler or repetition detected; safe to compress wording.")
+        if signals.repetition_score >= 0.4:
+            rationale.append("Repeated phrasing detected in the user prompt.")
 
         rationale.append(f"Composite complexity score: {score:.1f} -> {level.value}.")
         return rationale
@@ -179,6 +186,9 @@ class ComplexityAnalyzer:
             "multi_part_score": round(signals.multi_part_score, 3),
             "ambiguity_score": round(signals.ambiguity_score, 3),
             "retrieval_score": round(signals.retrieval_score, 3),
+            "filler_score": round(signals.filler_score, 3),
+            "repetition_score": round(signals.repetition_score, 3),
+            "verbosity_score": round(signals.verbosity_score, 3),
             "context_word_count": signals.context_word_count,
             "context_ratio": signals.context_ratio,
         }

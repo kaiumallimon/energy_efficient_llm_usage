@@ -74,6 +74,36 @@ class TestPromptOptimizer:
         assert result.optimized_context is not None
         assert result.optimized_context.count("Line one.") == 1
 
+    def test_real_world_verbose_factual_question(self, optimizer: PromptOptimizer) -> None:
+        query = "could you please tell me what is the capital of Bangladesh??"
+        result = optimizer.optimize(query, None, make_analysis(OptimizationPolicy.AGGRESSIVE))
+
+        assert result.was_modified
+        assert "please" not in result.optimized_query.lower()
+        assert "could you" not in result.optimized_query.lower()
+        assert "bangladesh" in result.optimized_query.lower()
+        assert result.optimized_query.endswith("?")
+        assert result.optimized_query.startswith("What")
+
+    def test_real_world_awkward_math_phrasing(self, optimizer: PromptOptimizer) -> None:
+        query = "could you please calculate what is the answer of 2+2 is?"
+        result = optimizer.optimize(query, None, make_analysis(OptimizationPolicy.AGGRESSIVE))
+
+        assert result.was_modified
+        assert "please" not in result.optimized_query.lower()
+        assert "2+2" in result.optimized_query.replace(" ", "")
+
+    def test_real_world_repeated_polite_openers(self, optimizer: PromptOptimizer) -> None:
+        query = (
+            "Hey, so I was wondering if you could please tell me, if you don't mind, "
+            "what is the capital of France?"
+        )
+        result = optimizer.optimize(query, None, make_analysis(OptimizationPolicy.AGGRESSIVE))
+
+        assert result.was_modified
+        assert "wondering" not in result.optimized_query.lower()
+        assert "france" in result.optimized_query.lower()
+
 
 class TestPromptPipeline:
     def test_pipeline_links_analyzer_and_optimizer(self) -> None:
