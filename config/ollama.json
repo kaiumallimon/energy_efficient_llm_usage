@@ -1,6 +1,10 @@
 {
   "base_url": "http://localhost:11434",
   "model": "qwen3.5:4b",
+  "analyzer_model": "qwen2.5:0.5b",
+  "optimizer_model": "qwen2.5:0.5b",
+  "embedding_model": "nomic-embed-text",
   "timeout_seconds": 120,
-  "think": false
+  "think": false,
+  "validation_similarity_threshold": 0.9
 }

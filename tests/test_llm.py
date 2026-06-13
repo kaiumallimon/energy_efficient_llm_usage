@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.generator.models import GeneratedPrompt
+from src.generator.models import GeneratedPrompt, InferenceParams
 from src.llm import OllamaClient, OllamaConfig, OllamaError
 from src.llm.config import _parse_optional_bool
 from src.pipeline import PromptPipeline
@@ -14,6 +14,8 @@ from src.pipeline import PromptPipeline
 @pytest.fixture
 def sample_generated() -> GeneratedPrompt:
     from src.analyzer.models import ComplexityLevel, OptimizationPolicy, TaskType
+
+    inference = InferenceParams(max_tokens=256, temperature=0.1, top_p=0.85)
 
     return GeneratedPrompt(
         system_prompt="Answer concisely.",
@@ -29,6 +31,8 @@ def sample_generated() -> GeneratedPrompt:
         task_type=TaskType.FACTUAL,
         complexity_level=ComplexityLevel.LOW,
         policy=OptimizationPolicy.AGGRESSIVE,
+        inference_params=inference,
+        inference_options=inference.to_options(),
     )
 
 

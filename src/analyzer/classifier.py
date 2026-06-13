@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from src.analyzer.intent_classifier import IntentClassifier
 from src.analyzer.models import (
     ComplexityLevel,
     ComplexityResult,
@@ -20,6 +21,10 @@ class ComplexityThresholds:
 
 TASK_COMPLEXITY_WEIGHT: dict[TaskType, float] = {
     TaskType.FACTUAL: 8.0,
+    TaskType.DEFINITION: 7.0,
+    TaskType.CONCEPT_EXPLANATION: 12.0,
+    TaskType.EDUCATIONAL: 14.0,
+    TaskType.EXAM_HELP: 16.0,
     TaskType.CONVERSATIONAL: 10.0,
     TaskType.CREATIVE: 18.0,
     TaskType.SUMMARIZATION: 22.0,
@@ -31,27 +36,40 @@ TASK_COMPLEXITY_WEIGHT: dict[TaskType, float] = {
 
 
 class ComplexityAnalyzer:
-    """Heuristic complexity classifier for user prompts."""
+    """Intent-aware complexity classifier for user prompts."""
 
-    def __init__(self, thresholds: ComplexityThresholds | None = None) -> None:
+    def __init__(
+        self,
+        thresholds: ComplexityThresholds | None = None,
+        intent_classifier: IntentClassifier | None = None,
+        *,
+        use_ollama: bool = True,
+    ) -> None:
         self.thresholds = thresholds or ComplexityThresholds()
+        self.intent_classifier = intent_classifier or IntentClassifier(use_ollama=use_ollama)
 
     def analyze(self, query: str, context: str | None = None) -> ComplexityResult:
         signals = extract_signals(query, context)
+        task_type, intent_confidence, intent_rationale, intent_source = (
+            self.intent_classifier.classify(query)
+        )
+        signals = _replace_task_signals(signals, task_type, intent_confidence)
         score = self._score(signals)
         level = self._level(score, signals)
         policy = self._policy(level, signals)
-        confidence = self._confidence(signals, score)
+        confidence = self._confidence(signals, score, intent_confidence)
         rationale = self._rationale(signals, score, level)
+        rationale.insert(0, intent_rationale)
 
         return ComplexityResult(
             level=level,
             score=round(score, 2),
-            task_type=signals.task_type,
+            task_type=task_type,
             policy=policy,
             confidence=round(confidence, 2),
             signals=self._public_signals(signals),
             rationale=rationale,
+            intent_source=intent_source,
         )
 
     def _score(self, signals: PromptSignals) -> float:
@@ -107,6 +125,10 @@ class ComplexityAnalyzer:
         if signals.constraint_score >= 0.3 and level == ComplexityLevel.LOW:
             return ComplexityLevel.MEDIUM
 
+        if signals.task_type == TaskType.REASONING and signals.reasoning_score >= 0.25:
+            if level == ComplexityLevel.LOW:
+                return ComplexityLevel.MEDIUM
+
         return level
 
     def _policy(self, level: ComplexityLevel, signals: PromptSignals) -> OptimizationPolicy:
@@ -124,20 +146,25 @@ class ComplexityAnalyzer:
 
         return policy
 
-    def _confidence(self, signals: PromptSignals, score: float) -> float:
-        confidence = 0.55
+    def _confidence(
+        self,
+        signals: PromptSignals,
+        score: float,
+        intent_confidence: float,
+    ) -> float:
+        confidence = max(0.55, intent_confidence * 0.75)
 
         if signals.task_type_scores:
             top = max(signals.task_type_scores.values())
-            confidence += min(0.2, top * 0.2)
+            confidence += min(0.15, top * 0.15)
 
         if signals.word_count >= 20:
-            confidence += 0.1
+            confidence += 0.05
         if signals.word_count >= 60:
             confidence += 0.05
 
         if score <= self.thresholds.low_max or score >= self.thresholds.high_max:
-            confidence += 0.1
+            confidence += 0.05
 
         return min(0.95, confidence)
 
@@ -192,3 +219,30 @@ class ComplexityAnalyzer:
             "context_word_count": signals.context_word_count,
             "context_ratio": signals.context_ratio,
         }
+
+
+def _replace_task_signals(
+    signals: PromptSignals,
+    task_type: TaskType,
+    confidence: float,
+) -> PromptSignals:
+    updated_scores = dict(signals.task_type_scores)
+    updated_scores[task_type.value] = max(updated_scores.get(task_type.value, 0.0), confidence)
+    return PromptSignals(
+        word_count=signals.word_count,
+        sentence_count=signals.sentence_count,
+        question_count=signals.question_count,
+        task_type=task_type,
+        task_type_scores=updated_scores,
+        reasoning_score=signals.reasoning_score,
+        constraint_score=signals.constraint_score,
+        safety_score=signals.safety_score,
+        multi_part_score=signals.multi_part_score,
+        ambiguity_score=signals.ambiguity_score,
+        retrieval_score=signals.retrieval_score,
+        filler_score=signals.filler_score,
+        repetition_score=signals.repetition_score,
+        verbosity_score=signals.verbosity_score,
+        context_word_count=signals.context_word_count,
+        context_ratio=signals.context_ratio,
+    )

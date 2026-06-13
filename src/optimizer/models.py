@@ -19,9 +19,11 @@ class OptimizationResult:
     optimized_word_count: int = 0
     word_reduction_percent: float = 0.0
     was_modified: bool = False
+    validation: Any | None = None
+    optimizer_source: str = "hybrid"
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "original_query": self.original_query,
             "optimized_query": self.optimized_query,
             "original_context": self.original_context,
@@ -33,4 +35,8 @@ class OptimizationResult:
             "optimized_word_count": self.optimized_word_count,
             "word_reduction_percent": round(self.word_reduction_percent, 2),
             "was_modified": self.was_modified,
+            "optimizer_source": self.optimizer_source,
         }
+        if self.validation is not None and hasattr(self.validation, "to_dict"):
+            payload["validation"] = self.validation.to_dict()
+        return payload

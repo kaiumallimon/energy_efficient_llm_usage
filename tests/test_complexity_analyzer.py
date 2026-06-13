@@ -8,7 +8,22 @@ from src.analyzer.models import ComplexityLevel, OptimizationPolicy, TaskType
 
 @pytest.fixture
 def analyzer() -> ComplexityAnalyzer:
-    return ComplexityAnalyzer()
+    return ComplexityAnalyzer(use_ollama=False)
+
+
+class TestDefinitionPrompts:
+    def test_cfg_short_question_is_definition_not_coding(
+        self, analyzer: ComplexityAnalyzer
+    ) -> None:
+        result = analyzer.analyze("what is CFG shortly?")
+
+        assert result.task_type in {
+            TaskType.DEFINITION,
+            TaskType.CONCEPT_EXPLANATION,
+            TaskType.FACTUAL,
+        }
+        assert result.task_type != TaskType.CODING
+        assert result.level == ComplexityLevel.LOW
 
 
 class TestSimplePrompts:

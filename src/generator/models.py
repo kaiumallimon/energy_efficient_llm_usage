@@ -14,6 +14,20 @@ class ModelTier(str, Enum):
 
 
 @dataclass(frozen=True)
+class InferenceParams:
+    max_tokens: int
+    temperature: float
+    top_p: float
+
+    def to_options(self) -> dict[str, float | int]:
+        return {
+            "num_predict": self.max_tokens,
+            "temperature": self.temperature,
+            "top_p": self.top_p,
+        }
+
+
+@dataclass(frozen=True)
 class GeneratedPrompt:
     system_prompt: str
     user_prompt: str
@@ -25,6 +39,8 @@ class GeneratedPrompt:
     task_type: TaskType
     complexity_level: ComplexityLevel
     policy: OptimizationPolicy
+    inference_params: InferenceParams
+    inference_options: dict[str, float | int] = field(default_factory=dict)
     sections: dict[str, str] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
 
@@ -40,6 +56,12 @@ class GeneratedPrompt:
             "task_type": self.task_type.value,
             "complexity_level": self.complexity_level.value,
             "policy": self.policy.value,
+            "inference_params": {
+                "max_tokens": self.inference_params.max_tokens,
+                "temperature": self.inference_params.temperature,
+                "top_p": self.inference_params.top_p,
+            },
+            "inference_options": self.inference_options,
             "sections": self.sections,
             "notes": self.notes,
         }

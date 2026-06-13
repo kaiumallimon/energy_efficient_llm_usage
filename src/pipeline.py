@@ -5,6 +5,7 @@ from typing import Any
 
 from src.analyzer import ComplexityAnalyzer
 from src.analyzer.models import ComplexityResult
+from src.decomposer import DecomposedPrompt, PromptDecomposer
 from src.evaluation import EvaluationResult, PipelineEvaluator
 from src.generator import AdaptivePromptGenerator, GeneratedPrompt
 from src.llm import LLMCallResult, OllamaClient
@@ -15,6 +16,7 @@ from src.optimizer import OptimizationResult, PromptOptimizer
 @dataclass(frozen=True)
 class PipelineResult:
     analysis: ComplexityResult
+    decomposition: DecomposedPrompt
     optimization: OptimizationResult
     generation: GeneratedPrompt
     llm: LLMCallResult | None = None
@@ -29,6 +31,7 @@ class PipelineResult:
     def to_dict(self) -> dict[str, Any]:
         payload = {
             "analysis": self.analysis.to_dict(),
+            "decomposition": self.decomposition.to_dict(),
             "optimization": self.optimization.to_dict(),
             "generation": self.generation.to_dict(),
         }
@@ -45,19 +48,47 @@ class PipelineResult:
 
 
 class PromptPipeline:
-    """Runs complexity analysis, optimization, prompt generation, and optional LLM call."""
+    """Runs intent analysis, decomposition, semantic optimization, validation, and generation."""
 
     def __init__(
         self,
         analyzer: ComplexityAnalyzer | None = None,
+        decomposer: PromptDecomposer | None = None,
         optimizer: PromptOptimizer | None = None,
         generator: AdaptivePromptGenerator | None = None,
         llm_client: OllamaClient | None = None,
+        *,
+        use_ollama: bool = False,
     ) -> None:
-        self.analyzer = analyzer or ComplexityAnalyzer()
-        self.optimizer = optimizer or PromptOptimizer()
-        self.generator = generator or AdaptivePromptGenerator()
         self.llm_client = llm_client
+        client = llm_client
+
+        if analyzer is None:
+            from src.analyzer.intent_classifier import IntentClassifier
+
+            self.analyzer = ComplexityAnalyzer(
+                intent_classifier=IntentClassifier(client=client, use_ollama=use_ollama),
+                use_ollama=use_ollama,
+            )
+        else:
+            self.analyzer = analyzer
+
+        self.decomposer = decomposer or PromptDecomposer(client=client, use_ollama=use_ollama)
+
+        if optimizer is None:
+            from src.optimizer.llm_optimizer import LLMPromptOptimizer
+            from src.validator import QualityValidator
+
+            self.optimizer = PromptOptimizer(
+                llm_optimizer=LLMPromptOptimizer(client=client, use_ollama=use_ollama),
+                validator=QualityValidator(client=client, use_ollama=use_ollama),
+                use_ollama=use_ollama,
+            )
+        else:
+            self.optimizer = optimizer
+
+        self.generator = generator or AdaptivePromptGenerator()
+        self.use_ollama = use_ollama
 
     def process(
         self,
@@ -69,8 +100,9 @@ class PromptPipeline:
         think: bool | None = None,
     ) -> PipelineResult:
         analysis = self.analyzer.analyze(query, context)
-        optimization = self.optimizer.optimize(query, context, analysis)
-        generation = self.generator.generate(analysis, optimization)
+        decomposition = self.decomposer.decompose(query, context, analysis)
+        optimization = self.optimizer.optimize(query, context, analysis, decomposition)
+        generation = self.generator.generate(analysis, optimization, decomposition)
 
         llm_result = None
         baseline_llm = None
@@ -102,6 +134,7 @@ class PromptPipeline:
 
         return PipelineResult(
             analysis=analysis,
+            decomposition=decomposition,
             optimization=optimization,
             generation=generation,
             llm=llm_result,

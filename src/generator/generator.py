@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from src.analyzer.models import ComplexityResult
+from src.decomposer.models import DecomposedPrompt
 from src.generator.models import GeneratedPrompt
 from src.generator.templates import (
     build_full_prompt,
@@ -8,6 +9,7 @@ from src.generator.templates import (
     build_system_prompt,
     build_template_id,
     build_user_prompt,
+    select_inference_params,
     select_model_tier,
 )
 from src.optimizer.models import OptimizationResult
@@ -20,11 +22,13 @@ class AdaptivePromptGenerator:
         self,
         analysis: ComplexityResult,
         optimization: OptimizationResult,
+        decomposed: DecomposedPrompt | None = None,
     ) -> GeneratedPrompt:
         system_prompt, notes = build_system_prompt(analysis)
-        user_prompt, sections = build_user_prompt(optimization, analysis)
+        user_prompt, sections = build_user_prompt(optimization, analysis, decomposed)
         messages = build_messages(system_prompt, user_prompt)
         full_prompt = build_full_prompt(system_prompt, user_prompt)
+        inference_params = select_inference_params(analysis)
 
         return GeneratedPrompt(
             system_prompt=system_prompt,
@@ -37,6 +41,8 @@ class AdaptivePromptGenerator:
             task_type=analysis.task_type,
             complexity_level=analysis.level,
             policy=analysis.policy,
+            inference_params=inference_params,
+            inference_options=inference_params.to_options(),
             sections=sections,
             notes=notes,
         )

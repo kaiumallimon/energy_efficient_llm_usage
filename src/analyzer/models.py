@@ -14,6 +14,10 @@ class ComplexityLevel(str, Enum):
 
 class TaskType(str, Enum):
     FACTUAL = "factual"
+    DEFINITION = "definition"
+    CONCEPT_EXPLANATION = "concept_explanation"
+    EDUCATIONAL = "educational"
+    EXAM_HELP = "exam_help"
     CREATIVE = "creative"
     REASONING = "reasoning"
     CODING = "coding"
@@ -21,6 +25,21 @@ class TaskType(str, Enum):
     EXTRACTION = "extraction"
     CONVERSATIONAL = "conversational"
     UNKNOWN = "unknown"
+
+
+INTENT_LABELS: tuple[str, ...] = (
+    TaskType.EDUCATIONAL.value,
+    TaskType.FACTUAL.value,
+    TaskType.DEFINITION.value,
+    TaskType.CONCEPT_EXPLANATION.value,
+    TaskType.EXAM_HELP.value,
+    TaskType.CODING.value,
+    TaskType.REASONING.value,
+    TaskType.SUMMARIZATION.value,
+    TaskType.EXTRACTION.value,
+    TaskType.CREATIVE.value,
+    TaskType.CONVERSATIONAL.value,
+)
 
 
 class OptimizationPolicy(str, Enum):
@@ -39,6 +58,7 @@ class ComplexityResult:
     confidence: float
     signals: dict[str, Any] = field(default_factory=dict)
     rationale: list[str] = field(default_factory=list)
+    intent_source: str = "heuristic"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -49,4 +69,5 @@ class ComplexityResult:
             "confidence": round(self.confidence, 2),
             "signals": self.signals,
             "rationale": self.rationale,
+            "intent_source": self.intent_source,
         }

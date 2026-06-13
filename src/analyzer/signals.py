@@ -9,9 +9,26 @@ from src.text_utils import WORD_RE
 SENTENCE_RE = re.compile(r"[.!?]+")
 
 TASK_PATTERNS: dict[TaskType, tuple[str, ...]] = {
+    TaskType.DEFINITION: (
+        r"\b(what is|what's|define|definition of|meaning of|stand for|stands for)\b",
+        r"\b(in short|briefly|shortly|quick definition)\b",
+    ),
+    TaskType.CONCEPT_EXPLANATION: (
+        r"\b(explain|describe|how does .+ work|what does .+ mean)\b",
+        r"\b(concept|theory|principle|overview of)\b",
+    ),
+    TaskType.EDUCATIONAL: (
+        r"\b(teach me|help me learn|learn about|tutorial|walk me through)\b",
+        r"\b(for beginners|intro to|introduction to)\b",
+    ),
+    TaskType.EXAM_HELP: (
+        r"\b(exam|quiz|homework|assignment|test prep|study guide)\b",
+        r"\b(practice question|sample question|mock test)\b",
+    ),
     TaskType.CODING: (
-        r"\b(code|function|class|debug|implement|refactor|api|sql|python|javascript|typescript|regex)\b",
-        r"\b(bug|error|stack trace|compile|syntax)\b",
+        r"\b(write code|implement|debug|refactor|fix this code|stack trace|compile error)\b",
+        r"\b(python script|javascript function|typescript class|sql query)\b",
+        r"\b(code snippet|run this program|syntax error)\b",
     ),
     TaskType.REASONING: (
         r"\b(why|how|explain|analyze|compare|evaluate|prove|derive|step by step)\b",
@@ -109,7 +126,64 @@ def detect_task_type(text: str) -> tuple[TaskType, dict[str, float]]:
     for task_type, patterns in TASK_PATTERNS.items():
         hits = count_pattern_hits(normalized, patterns)
         if hits:
-            scores[task_type.value] = min(1.0, hits * 0.35)
+            weight = 0.45 if task_type in {
+                TaskType.DEFINITION,
+                TaskType.CONCEPT_EXPLANATION,
+            } else 0.35
+            scores[task_type.value] = min(1.0, hits * weight)
+
+    word_count = len(normalized.split())
+    if re.search(r"\d", normalized) and re.search(r"[\+\-\*/=]", normalized):
+        scores[TaskType.FACTUAL.value] = max(scores.get(TaskType.FACTUAL.value, 0.0), 0.85)
+    elif word_count <= 15 and re.search(
+        r"\b(what is|what's|define|meaning of|stand for)\b",
+        normalized,
+        flags=re.IGNORECASE,
+    ):
+        factual_indicator = re.search(
+            r"\b(capital of|who is|when did|where is|how many|how much)\b",
+            normalized,
+            flags=re.IGNORECASE,
+        )
+        if not factual_indicator:
+            definition_score = 0.55
+            if re.search(
+                r"\b(shortly|briefly|in short|quick definition)\b",
+                normalized,
+                flags=re.IGNORECASE,
+            ):
+                definition_score = 0.9
+            elif re.search(r"\b[A-Z]{2,}\b", text):
+                definition_score = 0.88
+            scores[TaskType.DEFINITION.value] = max(
+                scores.get(TaskType.DEFINITION.value, 0.0),
+                definition_score,
+            )
+            if definition_score >= 0.85:
+                scores.pop(TaskType.CODING.value, None)
+
+    if word_count <= 20 and re.search(r"\b(explain|describe)\b", normalized, flags=re.IGNORECASE):
+        if not re.search(
+            r"\b(debug|implement|refactor|fix this code|python|javascript|typescript)\b",
+            normalized,
+            flags=re.IGNORECASE,
+        ):
+            scores[TaskType.CONCEPT_EXPLANATION.value] = max(
+                scores.get(TaskType.CONCEPT_EXPLANATION.value, 0.0),
+                0.7,
+            )
+
+    if re.search(
+        r"\b(debug|implement|refactor|fix)\b.*\b(code|function|python|javascript|typescript|program)\b",
+        normalized,
+        flags=re.IGNORECASE,
+    ) or re.search(
+        r"\b(python|javascript|typescript)\b.*\b(function|script|code)\b",
+        normalized,
+        flags=re.IGNORECASE,
+    ):
+        scores[TaskType.CODING.value] = max(scores.get(TaskType.CODING.value, 0.0), 0.9)
+        scores.pop(TaskType.CONCEPT_EXPLANATION.value, None)
 
     if not scores:
         if len(normalized.split()) <= 12 and "?" in normalized:

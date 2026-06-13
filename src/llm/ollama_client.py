@@ -6,7 +6,6 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-from src.generator.models import GeneratedPrompt
 from src.llm.config import OllamaConfig
 from src.llm.models import LLMCallResult, TokenUsage
 
@@ -23,18 +22,83 @@ class OllamaClient:
     def __init__(self, config: OllamaConfig | None = None) -> None:
         self.config = config or OllamaConfig.load()
 
+    def embed(self, text: str, *, model: str | None = None) -> list[float]:
+        payload = {
+            "model": model or self.config.embedding_model,
+            "input": text,
+        }
+        try:
+            response_payload = self._post("/api/embed", payload)
+        except urllib.error.URLError as exc:
+            raise OllamaError(
+                f"Could not reach Ollama at {self.config.base_url}. "
+                "Is the Ollama service running?"
+            ) from exc
+
+        embeddings = response_payload.get("embeddings")
+        if isinstance(embeddings, list) and embeddings:
+            first = embeddings[0]
+            if isinstance(first, list):
+                return [float(value) for value in first]
+
+        embedding = response_payload.get("embedding")
+        if isinstance(embedding, list):
+            return [float(value) for value in embedding]
+
+        raise OllamaError("Ollama embed response is missing embedding vectors.")
+
+    def generate_text(
+        self,
+        prompt: str,
+        *,
+        model: str | None = None,
+        system: str | None = None,
+        temperature: float = 0.1,
+        max_tokens: int = 512,
+    ) -> str:
+        messages: list[dict[str, str]] = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
+
+        payload: dict[str, Any] = {
+            "model": model or self.config.optimizer_model,
+            "messages": messages,
+            "stream": False,
+            "options": {
+                "temperature": temperature,
+                "num_predict": max_tokens,
+            },
+        }
+
+        try:
+            response_payload = self._post("/api/chat", payload)
+        except urllib.error.URLError as exc:
+            raise OllamaError(
+                f"Could not reach Ollama at {self.config.base_url}. "
+                "Is the Ollama service running?"
+            ) from exc
+
+        message = response_payload.get("message", {})
+        if not isinstance(message, dict):
+            raise OllamaError("Ollama response is missing message content.")
+        return str(message.get("content") or "").strip()
+
     def chat(
         self,
         messages: list[dict[str, str]],
         *,
         model: str | None = None,
         think: bool | None = None,
+        options: dict[str, Any] | None = None,
     ) -> LLMCallResult:
         payload: dict[str, Any] = {
             "model": model or self.config.model,
             "messages": messages,
             "stream": False,
         }
+        if options:
+            payload["options"] = options
         resolved_think = self._resolve_think(think)
         if resolved_think is not None:
             payload["think"] = resolved_think
@@ -51,9 +115,20 @@ class OllamaClient:
         latency_ms = (time.perf_counter() - started) * 1000.0
         return self._build_result(response_payload, latency_ms, resolved_think is True)
 
-    def call(self, generated: GeneratedPrompt, *, think: bool | None = None) -> LLMCallResult:
+    def call(
+        self,
+        generated: "GeneratedPrompt",
+        *,
+        think: bool | None = None,
+        model: str | None = None,
+    ) -> LLMCallResult:
         resolved_think = think if think is not None else self._auto_think(generated)
-        return self.chat(generated.messages, think=resolved_think)
+        return self.chat(
+            generated.messages,
+            model=model,
+            think=resolved_think,
+            options=generated.inference_options or None,
+        )
 
     def call_baseline(
         self,
@@ -75,7 +150,7 @@ class OllamaClient:
             return think
         return self.config.think
 
-    def _auto_think(self, generated: GeneratedPrompt) -> bool | None:
+    def _auto_think(self, generated: "GeneratedPrompt") -> bool | None:
         if self.config.think is not None:
             return self.config.think
         return generated.complexity_level.value in {"high", "critical"}

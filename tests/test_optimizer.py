@@ -9,7 +9,7 @@ from src.pipeline import PromptPipeline
 
 @pytest.fixture
 def optimizer() -> PromptOptimizer:
-    return PromptOptimizer()
+    return PromptOptimizer(use_ollama=False)
 
 
 def make_analysis(policy: OptimizationPolicy, level: ComplexityLevel = ComplexityLevel.LOW):

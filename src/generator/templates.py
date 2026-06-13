@@ -8,12 +8,17 @@ from src.analyzer.models import (
     OptimizationPolicy,
     TaskType,
 )
-from src.generator.models import ModelTier
+from src.constraints import extract_constraints
+from src.generator.models import InferenceParams, ModelTier
+from src.decomposer.models import DecomposedPrompt
 from src.optimizer.models import OptimizationResult
-from src.optimizer.phrases import CONSTRAINT_MARKERS
 
 TASK_INSTRUCTIONS: dict[TaskType, str] = {
     TaskType.FACTUAL: "Answer factual questions directly and accurately.",
+    TaskType.DEFINITION: "Give a concise definition that matches the requested depth.",
+    TaskType.CONCEPT_EXPLANATION: "Explain the concept clearly without unnecessary detail.",
+    TaskType.EDUCATIONAL: "Teach the concept in a structured, easy-to-follow way.",
+    TaskType.EXAM_HELP: "Help the user understand the concept for study; avoid doing graded work for them.",
     TaskType.CONVERSATIONAL: "Respond naturally and helpfully.",
     TaskType.CREATIVE: "Follow the user's creative brief while staying concise.",
     TaskType.REASONING: "Explain reasoning clearly; use structure for comparisons.",
@@ -55,6 +60,26 @@ VERBOSITY_APPENDIX = (
 )
 
 QUESTION_SPLIT_RE = re.compile(r"\?(?:\s+|$)")
+
+
+def select_inference_params(analysis: ComplexityResult) -> InferenceParams:
+    if analysis.level == ComplexityLevel.CRITICAL or analysis.policy == OptimizationPolicy.MINIMAL:
+        return InferenceParams(max_tokens=768, temperature=0.2, top_p=0.9)
+
+    if analysis.task_type == TaskType.CODING or analysis.level == ComplexityLevel.HIGH:
+        return InferenceParams(max_tokens=1024, temperature=0.15, top_p=0.9)
+
+    if analysis.level == ComplexityLevel.LOW and analysis.policy == OptimizationPolicy.AGGRESSIVE:
+        return InferenceParams(max_tokens=256, temperature=0.1, top_p=0.85)
+
+    if analysis.task_type in {
+        TaskType.DEFINITION,
+        TaskType.FACTUAL,
+        TaskType.CONCEPT_EXPLANATION,
+    }:
+        return InferenceParams(max_tokens=320, temperature=0.1, top_p=0.85)
+
+    return InferenceParams(max_tokens=512, temperature=0.15, top_p=0.9)
 
 
 def select_model_tier(analysis: ComplexityResult) -> str:
@@ -110,17 +135,6 @@ def build_system_prompt(analysis: ComplexityResult) -> tuple[str, list[str]]:
     return " ".join(part for part in parts if part), notes
 
 
-def extract_constraints(query: str) -> list[str]:
-    constraints: list[str] = []
-    for pattern in CONSTRAINT_MARKERS:
-        for match in re.finditer(pattern, query, flags=re.IGNORECASE):
-            start = max(0, match.start() - 40)
-            end = min(len(query), match.end() + 80)
-            snippet = query[start:end].strip()
-            if snippet and snippet not in constraints:
-                constraints.append(snippet)
-    return constraints
-
 
 def split_questions(query: str) -> list[str]:
     if "?" not in query:
@@ -162,6 +176,7 @@ def structure_request(query: str, analysis: ComplexityResult) -> tuple[str, list
 def build_user_prompt(
     optimization: OptimizationResult,
     analysis: ComplexityResult,
+    decomposed: DecomposedPrompt | None = None,
 ) -> tuple[str, dict[str, str]]:
     query = optimization.optimized_query
     context = optimization.optimized_context
@@ -169,6 +184,9 @@ def build_user_prompt(
 
     structured_query, structure_notes = structure_request(query, analysis)
     sections["request"] = structured_query
+    if decomposed is not None:
+        sections["intent"] = decomposed.intent
+        sections["core_request"] = decomposed.core_request
 
     if context:
         sections["context"] = context

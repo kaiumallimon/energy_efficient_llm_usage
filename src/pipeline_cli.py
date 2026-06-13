@@ -85,7 +85,7 @@ def build_pipeline(args: argparse.Namespace) -> PromptPipeline:
             think=config.think,
         )
 
-    return PromptPipeline(llm_client=OllamaClient(config))
+    return PromptPipeline(llm_client=OllamaClient(config), use_ollama=True)
 
 
 def resolve_think_override(args: argparse.Namespace) -> bool | None:
@@ -154,11 +154,30 @@ def main(argv: list[str] | None = None) -> int:
     for change in optimization.changes:
         print(f"  - {change}")
 
+    if optimization.validation is not None:
+        validation = optimization.validation
+        print("\nValidation")
+        print(f"  Passed:     {validation.passed}")
+        print(f"  Similarity: {validation.similarity:.3f}")
+        print(f"  Source:     {validation.source}")
+
     print("\nGeneration")
     print(f"  Template:   {generation.template_id}")
     print(f"  Model tier: {generation.model_tier}")
+    print(
+        "  Inference:  "
+        f"max_tokens={generation.inference_params.max_tokens}, "
+        f"temperature={generation.inference_params.temperature}, "
+        f"top_p={generation.inference_params.top_p}"
+    )
     print(f"  System:     {generation.system_prompt}")
     print(f"  User:       {generation.user_prompt}")
+
+    if result.decomposition is not None:
+        print("\nDecomposition")
+        print(f"  Intent:       {result.decomposition.intent}")
+        print(f"  Core request: {result.decomposition.core_request}")
+        print(f"  Source:       {result.decomposition.source}")
 
     if generation.notes:
         print("\nGenerator notes:")
