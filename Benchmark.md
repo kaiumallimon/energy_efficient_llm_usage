@@ -29,6 +29,12 @@ The framework successfully reduces energy, latency, and token usage while mainta
 
 ## 1. TCP Three-Way Handshake (Definition)
 
+### Query
+
+```text
+What is TCP three-way handshake? Explain in 3-4 sentences with a simple example.
+```
+
 ### Performance Comparison
 
 | Metric  | Baseline | Optimized | Improvement |
@@ -65,6 +71,12 @@ The optimizer correctly recognized a simple definition query and produced a shor
 ---
 
 # 2. Operating Systems Study Notes (Summarization)
+
+### Query
+
+```text
+I have an Operating Systems exam tomorrow. Summarize the concepts of Process, Thread, Context Switching, and Deadlock into concise study notes.
+```
 
 ### Performance Comparison
 
@@ -108,6 +120,12 @@ Large savings with acceptable quality retention.
 ---
 
 # 3. Project Assignment Problem (Reasoning)
+
+### Query
+
+```text
+A company has 5 projects and 4 employees. Each project requires at least one employee, and each employee can work on multiple projects. Calculate the number of possible project assignments and explain your reasoning step by step.
+```
 
 ### Performance Comparison
 
@@ -185,6 +203,12 @@ Bad reasoning preservation.
 ---
 
 # 4. Dijkstra Coding Task
+
+### Query
+
+```text
+Write a Python program that implements Dijkstra's shortest path algorithm using a priority queue. Explain the time complexity and provide sample input and output.
+```
 
 ### Performance Comparison
 
