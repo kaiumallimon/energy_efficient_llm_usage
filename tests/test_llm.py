@@ -83,6 +83,8 @@ class TestOllamaClient:
 
         assert result.provider == "ollama"
         assert result.response == "4"
+        assert result.completion == "4"
+        assert result.to_dict()["completion"] == "4"
         assert result.usage.prompt_tokens == 12
         assert result.usage.completion_tokens == 3
         assert result.usage.total_tokens == 15
