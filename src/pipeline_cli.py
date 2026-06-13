@@ -1,4 +1,4 @@
-"""CLI for running analyzer + optimizer pipeline."""
+"""CLI for running analyzer + optimizer + generator pipeline."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from src.pipeline import PromptPipeline
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Analyze prompt complexity and optimize the prompt.",
+        description="Analyze, optimize, and assemble a prompt for LLM usage.",
     )
     parser.add_argument("query", nargs="?", help="User prompt to process")
     parser.add_argument(
@@ -64,6 +64,7 @@ def main(argv: list[str] | None = None) -> int:
 
     analysis = result.analysis
     optimization = result.optimization
+    generation = result.generation
 
     print("Analysis")
     print(f"  Level:      {analysis.level.value}")
@@ -87,6 +88,17 @@ def main(argv: list[str] | None = None) -> int:
     print("\nChanges:")
     for change in optimization.changes:
         print(f"  - {change}")
+
+    print("\nGeneration")
+    print(f"  Template:   {generation.template_id}")
+    print(f"  Model tier: {generation.model_tier}")
+    print(f"  System:     {generation.system_prompt}")
+    print(f"  User:       {generation.user_prompt}")
+
+    if generation.notes:
+        print("\nGenerator notes:")
+        for note in generation.notes:
+            print(f"  - {note}")
 
     return 0
 

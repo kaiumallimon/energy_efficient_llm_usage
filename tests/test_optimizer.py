@@ -85,13 +85,15 @@ class TestPromptPipeline:
         assert result.optimization.complexity_level == result.analysis.level
         assert result.optimization.was_modified
 
-    def test_pipeline_to_dict_has_both_stages(self) -> None:
+    def test_pipeline_to_dict_has_all_stages(self) -> None:
         payload = PromptPipeline().process("Hello there").to_dict()
 
         assert "analysis" in payload
         assert "optimization" in payload
+        assert "generation" in payload
         assert "policy" in payload["analysis"]
         assert "optimized_query" in payload["optimization"]
+        assert "messages" in payload["generation"]
 
     def test_critical_prompt_is_not_aggressively_modified(self) -> None:
         query = "What dosage should I take for these medical symptoms?"

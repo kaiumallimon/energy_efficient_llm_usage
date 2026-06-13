@@ -206,18 +206,16 @@ energy_efficient_llm_usage/
 ├── pyproject.toml
 ├── requirements-dev.txt
 ├── src/
-│   ├── analyzer/           # Query complexity analyzer (implemented)
-│   │   ├── classifier.py   # Scoring and level assignment
-│   │   ├── signals.py      # Feature extraction from prompts
-│   │   ├── token_estimate.py  # Input/output/total token estimation
-│   │   ├── models.py       # Shared types and result objects
-│   │   └── cli.py          # Command-line interface
-│   ├── optimizer/          # Energy-aware prompt optimizer (planned)
+│   ├── analyzer/           # Query complexity analyzer
+│   ├── optimizer/          # Energy-aware prompt optimizer
+│   ├── pipeline.py         # Links analyzer + optimizer
+│   ├── pipeline_cli.py     # End-to-end CLI
 │   ├── generator/          # Adaptive prompt generator (planned)
 │   ├── monitoring/         # Performance monitoring (planned)
 │   └── evaluation/         # Evaluation module (planned)
 ├── tests/
-│   └── test_complexity_analyzer.py
+│   ├── test_complexity_analyzer.py
+│   └── test_optimizer.py
 └── data/
     └── sample_prompts.json
 ```
@@ -231,21 +229,44 @@ Requires Python 3.10+.
 pip install -r requirements-dev.txt
 
 # Run tests
-pytest
+python -m pytest
 
-# Analyze a prompt from the CLI
+# Analyze only
 python -m src.analyzer.cli "What is the capital of France?"
 
-# JSON output with full signals
-python -m src.analyzer.cli "Compare SQL and NoSQL step by step" --json
+# Analyze + optimize (full pipeline)
+python -m src.pipeline_cli "Could you please tell me what the capital of France is?" --json
 ```
+
+## Pipeline (Analyzer + Optimizer)
+
+```python
+from src.pipeline import PromptPipeline
+
+result = PromptPipeline().process(
+    "Could you please explain in order to understand photosynthesis.",
+)
+
+print(result.analysis.policy)              # aggressive / moderate / conservative / minimal
+print(result.optimization.optimized_query) # compressed prompt
+print(result.optimization.word_reduction_percent)
+print(result.to_dict())
+```
+
+Flow:
+
+```
+User Query -> ComplexityAnalyzer -> PromptOptimizer -> optimized prompt
+```
+
+See [`src/analyzer/README.md`](src/analyzer/README.md) for analyzer internals.
 
 ## Complexity Analyzer (Stage 2)
 
-The first implemented module classifies prompt complexity before optimization.
+Classifies prompt complexity and selects an optimization policy.
 
 **Input:** user query and optional external context  
-**Output:** complexity level, score, detected task type, recommended optimization policy, estimated token usage (input + output + total), signals, and rationale
+**Output:** complexity level, score, task type, policy, confidence, signals, rationale
 
 ### Complexity levels
 
@@ -256,38 +277,23 @@ The first implemented module classifies prompt complexity before optimization.
 | `high` | Coding, deep reasoning, heavy context | `conservative` optimization |
 | `critical` | Safety-sensitive domains | `minimal` optimization |
 
-### Signals used
+## Prompt Optimizer (Stage 3)
 
-- Prompt length and estimated token count
-- Task type (factual, reasoning, coding, summarization, extraction, creative)
-- Reasoning language ("compare", "step by step", "explain why")
-- Output constraints ("JSON only", "do not", format requirements)
-- Multi-part questions
-- Retrieval/freshness requirements
-- External context size
-- Safety-sensitive domains (medical, legal, financial, secrets)
+Applies rule-based compression based on the analyzer policy.
 
-### Example
-
-```python
-from src.analyzer import ComplexityAnalyzer
-
-analyzer = ComplexityAnalyzer()
-result = analyzer.analyze(
-    "Debug this Python API handler and return only the fixed code.",
-)
-
-print(result.level)       # ComplexityLevel.HIGH
-print(result.policy)      # OptimizationPolicy.CONSERVATIVE
-print(result.estimated_total_tokens)  # estimated input + output tokens
-print(result.to_dict())   # full structured output
-```
+| Policy | Behavior |
+|--------|----------|
+| `aggressive` | Remove fillers, compress redundancy, trim long context |
+| `moderate` | Remove common filler prefixes |
+| `conservative` | Whitespace cleanup and context deduplication |
+| `minimal` | No changes (safety-sensitive prompts) |
 
 ## Status
 
 - [x] Architecture and README
-- [x] Query complexity analyzer (heuristic classifier + tests + CLI)
-- [ ] Energy-aware prompt optimizer
+- [x] Query complexity analyzer
+- [x] Energy-aware prompt optimizer
+- [x] Analyzer + optimizer pipeline
 - [ ] Adaptive prompt generator
 - [ ] LLM usage wrapper
 - [ ] Performance monitoring
