@@ -203,19 +203,93 @@ Be prepared to address these in the project report:
 ```
 energy_efficient_llm_usage/
 ├── README.md
-├── src/                    # Source code (to be added)
-│   ├── analyzer/           # Query complexity analyzer
-│   ├── optimizer/          # Energy-aware prompt optimizer
-│   ├── generator/          # Adaptive prompt generator
-│   ├── monitoring/         # Performance monitoring
-│   └── evaluation/         # Evaluation module
-├── data/                   # Benchmark queries and results
-└── docs/                   # Architecture notes and reports
+├── pyproject.toml
+├── requirements-dev.txt
+├── src/
+│   ├── analyzer/           # Query complexity analyzer (implemented)
+│   │   ├── classifier.py   # Scoring and level assignment
+│   │   ├── signals.py      # Feature extraction from prompts
+│   │   ├── models.py       # Shared types and result objects
+│   │   └── cli.py          # Command-line interface
+│   ├── optimizer/          # Energy-aware prompt optimizer (planned)
+│   ├── generator/          # Adaptive prompt generator (planned)
+│   ├── monitoring/         # Performance monitoring (planned)
+│   └── evaluation/         # Evaluation module (planned)
+├── tests/
+│   └── test_complexity_analyzer.py
+└── data/
+    └── sample_prompts.json
+```
+
+## Quick Start
+
+Requires Python 3.10+.
+
+```bash
+# Install dev dependencies
+pip install -r requirements-dev.txt
+
+# Run tests
+pytest
+
+# Analyze a prompt from the CLI
+python -m src.analyzer.cli "What is the capital of France?"
+
+# JSON output with full signals
+python -m src.analyzer.cli "Compare SQL and NoSQL step by step" --json
+```
+
+## Complexity Analyzer (Stage 2)
+
+The first implemented module classifies prompt complexity before optimization.
+
+**Input:** user query and optional external context  
+**Output:** complexity level, score, detected task type, recommended optimization policy, signals, and rationale
+
+### Complexity levels
+
+| Level | Meaning | Default policy |
+|-------|---------|----------------|
+| `low` | Short/direct requests | `aggressive` optimization |
+| `medium` | Multi-step or moderate reasoning | `moderate` optimization |
+| `high` | Coding, deep reasoning, heavy context | `conservative` optimization |
+| `critical` | Safety-sensitive domains | `minimal` optimization |
+
+### Signals used
+
+- Prompt length and estimated token count
+- Task type (factual, reasoning, coding, summarization, extraction, creative)
+- Reasoning language ("compare", "step by step", "explain why")
+- Output constraints ("JSON only", "do not", format requirements)
+- Multi-part questions
+- Retrieval/freshness requirements
+- External context size
+- Safety-sensitive domains (medical, legal, financial, secrets)
+
+### Example
+
+```python
+from src.analyzer import ComplexityAnalyzer
+
+analyzer = ComplexityAnalyzer()
+result = analyzer.analyze(
+    "Debug this Python API handler and return only the fixed code.",
+)
+
+print(result.level)       # ComplexityLevel.HIGH
+print(result.policy)      # OptimizationPolicy.CONSERVATIVE
+print(result.to_dict())   # full structured output
 ```
 
 ## Status
 
-Early planning / prototype stage. Module implementation pending.
+- [x] Architecture and README
+- [x] Query complexity analyzer (heuristic classifier + tests + CLI)
+- [ ] Energy-aware prompt optimizer
+- [ ] Adaptive prompt generator
+- [ ] LLM usage wrapper
+- [ ] Performance monitoring
+- [ ] Evaluation module
 
 ## License
 

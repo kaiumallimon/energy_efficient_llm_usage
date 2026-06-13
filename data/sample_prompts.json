@@ -1,0 +1,28 @@
+[
+  {
+    "id": "simple_fact",
+    "query": "What is 2 + 2?",
+    "expected_level": "low"
+  },
+  {
+    "id": "reasoning_architecture",
+    "query": "Compare REST and GraphQL for a mobile app backend. Explain trade-offs step by step.",
+    "expected_level": "medium"
+  },
+  {
+    "id": "coding_debug",
+    "query": "Debug this Python function and refactor it for readability.",
+    "expected_level": "high"
+  },
+  {
+    "id": "medical_safety",
+    "query": "What medical diagnosis fits these symptoms and dosage options?",
+    "expected_level": "critical"
+  },
+  {
+    "id": "summarize_with_context",
+    "query": "Summarize the document in 5 bullet points.",
+    "context": "Section 1 discusses quarterly revenue. Section 2 covers hiring plans. Section 3 lists technical debt items across authentication, billing, and reporting services.",
+    "expected_level": "medium"
+  }
+]
