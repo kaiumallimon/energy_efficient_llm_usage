@@ -132,16 +132,21 @@ class TestPromptPipelineLLM:
     def test_process_with_call_uses_client(self, sample_generated: GeneratedPrompt) -> None:
         mock_client = MagicMock()
         mock_client.call.return_value = MagicMock(
-            to_dict=lambda: {"model": "qwen3.5:4b"}
+            response="4",
+            to_dict=lambda: {"model": "qwen3.5:4b", "completion": "4"},
         )
 
         pipeline = PromptPipeline(llm_client=mock_client)
         result = pipeline.process("What is 2 + 2?", call_llm=True, think=False)
 
         assert result.llm is not None
+        assert result.completion == "4"
         mock_client.call.assert_called_once()
         assert mock_client.call.call_args.kwargs["think"] is False
-        assert "llm" in result.to_dict()
+        payload = result.to_dict()
+        assert "llm" in payload
+        assert payload["completion"] == "4"
+        assert "monitoring" in payload
 
 
 @pytest.mark.integration

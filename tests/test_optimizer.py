@@ -91,6 +91,7 @@ class TestPromptPipeline:
         assert "analysis" in payload
         assert "optimization" in payload
         assert "generation" in payload
+        assert "monitoring" in payload
         assert "policy" in payload["analysis"]
         assert "optimized_query" in payload["optimization"]
         assert "messages" in payload["generation"]
