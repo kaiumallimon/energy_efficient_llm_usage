@@ -1,0 +1,6 @@
+{
+  "base_url": "http://localhost:11434",
+  "model": "qwen3.5:4b",
+  "timeout_seconds": 120,
+  "think": false
+}
