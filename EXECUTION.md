@@ -117,6 +117,36 @@ python -m src.pipeline_cli "Could you please tell me what 2 + 2 is?" --evaluate 
 python -m src.pipeline_cli "What is REST?" --call --model qwen3.5:4b --think false
 ```
 
+**Baseline (unoptimized) LLM call** — send the raw query directly to Ollama for token/performance comparison:
+
+```bash
+python -m src.baseline_cli "could you please tell me what is the capital of Bangladesh??"
+
+python -m src.baseline_cli "could you please tell me what is the capital of Bangladesh??" --json
+```
+
+Installed entry point:
+
+```bash
+call-baseline "What is 2 + 2?" --json
+```
+
+Compare optimized vs baseline side by side:
+
+```bash
+# Optimized path (analyzer + optimizer + generator + LLM)
+python -m src.pipeline_cli "could you please tell me what is the capital of Bangladesh??" --call --json
+
+# Unoptimized path (raw query to LLM)
+python -m src.baseline_cli "could you please tell me what is the capital of Bangladesh??" --json
+```
+
+Or use a single command with built-in comparison:
+
+```bash
+python -m src.pipeline_cli "..." --call --evaluate --json
+```
+
 Installed entry point (equivalent):
 
 ```bash
@@ -340,6 +370,7 @@ python -m pytest -m "not integration"
 | Full pipeline (no LLM) | `python -m src.pipeline_cli "..." --json` |
 | Full pipeline + Ollama | `python -m src.pipeline_cli "..." --call --json` |
 | Full pipeline + evaluation | `python -m src.pipeline_cli "..." --call --evaluate --json` |
+| Baseline LLM (unoptimized) | `python -m src.baseline_cli "..." --json` |
 | Integration test only | `python -m pytest -m integration` |
 
 ---
@@ -367,4 +398,5 @@ python -m pytest -m "not integration"
 | Ollama LLM wrapper | Done | `--call`, `test_llm.py` |
 | Performance monitoring | Done | Always in `monitoring` field; `test_monitoring_evaluation.py` |
 | Evaluation module | Done | `--evaluate`; baseline LLM when combined with `--call` |
+| Baseline LLM CLI | Done | `src.baseline_cli`, `call-baseline` |
 | Benchmark runner | Done | `src.benchmark_cli`, `test_benchmark_prompts.py` |
