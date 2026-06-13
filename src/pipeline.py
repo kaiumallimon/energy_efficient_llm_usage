@@ -74,16 +74,12 @@ class PromptPipeline:
 
         llm_result = None
         baseline_llm = None
-        client = None
-
-        if call_llm or evaluate:
-            client = self.llm_client or OllamaClient()
 
         if call_llm:
+            client = self.llm_client or OllamaClient()
             llm_result = client.call(generation, think=think)
-
-        if evaluate and call_llm:
-            baseline_llm = client.call_baseline(query, context, think=think)
+            if evaluate:
+                baseline_llm = client.call_baseline(query, context, think=think)
 
         monitoring = PerformanceMonitor.collect(
             query,

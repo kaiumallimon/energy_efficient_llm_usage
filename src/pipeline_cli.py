@@ -49,6 +49,11 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["true", "false", "auto"],
         help="Control Qwen thinking mode: true, false, or auto by complexity",
     )
+    parser.add_argument(
+        "--evaluate",
+        action="store_true",
+        help="Compare optimized output against baseline; with --call, runs both LLM paths",
+    )
     return parser
 
 
@@ -111,6 +116,7 @@ def main(argv: list[str] | None = None) -> int:
             query,
             context,
             call_llm=args.call,
+            evaluate=args.evaluate,
             think=think_override,
         )
     except OllamaError as exc:
@@ -162,7 +168,7 @@ def main(argv: list[str] | None = None) -> int:
     if result.llm is not None:
         llm = result.llm
         usage = llm.usage
-        print("\nLLM Call")
+        print("\nLLM Call (optimized)")
         print(f"  Provider:   {llm.provider}")
         print(f"  Model:      {llm.model}")
         print(f"  Latency:    {llm.latency_ms:.0f} ms")
@@ -174,7 +180,58 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(f"  Thinking:   {usage.thinking_enabled}")
         print(f"  Energy est: {llm.energy_proxy:.4f} (proxy units)")
-        print(f"  Response:   {llm.response}")
+        print(f"  Completion: {llm.response}")
+
+    if result.baseline_llm is not None:
+        baseline = result.baseline_llm
+        usage = baseline.usage
+        print("\nLLM Call (baseline)")
+        print(f"  Model:      {baseline.model}")
+        print(f"  Latency:    {baseline.latency_ms:.0f} ms")
+        print(
+            "  Tokens:     "
+            f"prompt={usage.prompt_tokens}, "
+            f"completion={usage.completion_tokens}, "
+            f"total={usage.total_tokens}"
+        )
+        print(f"  Completion: {baseline.response}")
+
+    if result.monitoring is not None:
+        monitoring = result.monitoring
+        print("\nMonitoring")
+        optimized = monitoring.optimized
+        print(f"  Optimized prompt words: {optimized.prompt_words}")
+        if optimized.total_tokens is not None:
+            print(f"  Optimized total tokens: {optimized.total_tokens}")
+        if monitoring.baseline is not None and monitoring.baseline.total_tokens is not None:
+            print(f"  Baseline total tokens:  {monitoring.baseline.total_tokens}")
+
+    if result.evaluation is not None:
+        evaluation = result.evaluation
+        efficiency = evaluation.efficiency
+        print("\nEvaluation")
+        print(f"  Word reduction:   {efficiency.word_reduction_percent:.1f}%")
+        if efficiency.prompt_token_reduction_percent is not None:
+            print(
+                "  Prompt tokens:    "
+                f"{efficiency.prompt_token_reduction_percent:.1f}% saved"
+            )
+        if efficiency.total_token_reduction_percent is not None:
+            print(
+                "  Total tokens:     "
+                f"{efficiency.total_token_reduction_percent:.1f}% saved"
+            )
+        if efficiency.energy_savings_percent is not None:
+            print(f"  Energy proxy:     {efficiency.energy_savings_percent:.1f}% saved")
+        if evaluation.completions_match is not None:
+            print(f"  Completions match: {evaluation.completions_match}")
+        print(f"  Quality gate:     {'PASS' if evaluation.passed_quality_gate else 'REVIEW'}")
+        if evaluation.optimized_completion is not None:
+            print(f"  Optimized output: {evaluation.optimized_completion}")
+        if evaluation.baseline_completion is not None:
+            print(f"  Baseline output:  {evaluation.baseline_completion}")
+        for note in evaluation.notes:
+            print(f"  - {note}")
 
     return 0
 
