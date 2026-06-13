@@ -54,6 +54,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Compare optimized output against baseline; with --call, runs both LLM paths",
     )
+    parser.add_argument(
+        "--fallback",
+        action="store_true",
+        help="Rerun with a less aggressive policy if optimized output is too short or low quality",
+    )
     return parser
 
 
@@ -118,6 +123,7 @@ def main(argv: list[str] | None = None) -> int:
             call_llm=args.call,
             evaluate=args.evaluate,
             think=think_override,
+            fallback=args.fallback,
         )
     except OllamaError as exc:
         print(f"Ollama error: {exc}")
@@ -199,6 +205,8 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(f"  Thinking:   {usage.thinking_enabled}")
         print(f"  Energy est: {llm.energy_proxy:.4f} (proxy units)")
+        if llm.energy_measured_j is not None:
+            print(f"  Energy meas: {llm.energy_measured_j:.4f} J (calibrated)")
         print(f"  Completion: {llm.response}")
 
     if result.baseline_llm is not None:
@@ -214,6 +222,12 @@ def main(argv: list[str] | None = None) -> int:
             f"total={usage.total_tokens}"
         )
         print(f"  Completion: {baseline.response}")
+
+    if result.fallback is not None and result.fallback.used_fallback:
+        print("\nQuality Fallback")
+        print(f"  Triggered:  yes ({result.fallback.original_policy} -> {result.fallback.fallback_policy})")
+        for note in result.fallback.notes:
+            print(f"  - {note}")
 
     if result.monitoring is not None:
         monitoring = result.monitoring

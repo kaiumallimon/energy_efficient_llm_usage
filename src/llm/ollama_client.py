@@ -91,6 +91,7 @@ class OllamaClient:
         model: str | None = None,
         think: bool | None = None,
         options: dict[str, Any] | None = None,
+        measure_energy: bool = True,
     ) -> LLMCallResult:
         payload: dict[str, Any] = {
             "model": model or self.config.model,
@@ -104,6 +105,13 @@ class OllamaClient:
             payload["think"] = resolved_think
 
         started = time.perf_counter()
+        energy_measured_j = None
+        monitor = None
+        if measure_energy:
+            from src.monitoring.energy import EnergyMonitor
+
+            monitor = EnergyMonitor()
+            monitor.start()
         try:
             response_payload = self._post("/api/chat", payload)
         except urllib.error.URLError as exc:
@@ -111,9 +119,18 @@ class OllamaClient:
                 f"Could not reach Ollama at {self.config.base_url}. "
                 "Is the Ollama service running?"
             ) from exc
+        finally:
+            if monitor is not None:
+                measured = monitor.stop()
+                energy_measured_j = measured.joules
 
         latency_ms = (time.perf_counter() - started) * 1000.0
-        return self._build_result(response_payload, latency_ms, resolved_think is True)
+        return self._build_result(
+            response_payload,
+            latency_ms,
+            resolved_think is True,
+            energy_measured_j=energy_measured_j,
+        )
 
     def call(
         self,
@@ -181,6 +198,8 @@ class OllamaClient:
         payload: dict[str, Any],
         latency_ms: float,
         thinking_enabled: bool,
+        *,
+        energy_measured_j: float | None = None,
     ) -> LLMCallResult:
         message = payload.get("message", {})
         if not isinstance(message, dict):
@@ -205,6 +224,7 @@ class OllamaClient:
             load_duration_ms=_ns_to_ms(payload.get("load_duration")),
             eval_duration_ms=_ns_to_ms(payload.get("eval_duration")),
             energy_proxy=_estimate_energy_proxy(usage.total_tokens, self.config.model),
+            energy_measured_j=energy_measured_j,
             raw={
                 "done": payload.get("done"),
                 "done_reason": payload.get("done_reason"),

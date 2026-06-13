@@ -11,6 +11,7 @@ from src.generator import AdaptivePromptGenerator, GeneratedPrompt
 from src.llm import LLMCallResult, OllamaClient
 from src.monitoring import MonitoringSnapshot, PerformanceMonitor
 from src.optimizer import OptimizationResult, PromptOptimizer
+from src.pipeline_fallback import FallbackResult, QualityFallbackHandler
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,7 @@ class PipelineResult:
     baseline_llm: LLMCallResult | None = None
     monitoring: MonitoringSnapshot | None = None
     evaluation: EvaluationResult | None = None
+    fallback: FallbackResult | None = None
 
     @property
     def completion(self) -> str | None:
@@ -44,6 +46,8 @@ class PipelineResult:
             payload["monitoring"] = self.monitoring.to_dict()
         if self.evaluation is not None:
             payload["evaluation"] = self.evaluation.to_dict()
+        if self.fallback is not None:
+            payload["fallback"] = self.fallback.to_dict()
         return payload
 
 
@@ -98,6 +102,7 @@ class PromptPipeline:
         call_llm: bool = False,
         evaluate: bool = False,
         think: bool | None = None,
+        fallback: bool = False,
     ) -> PipelineResult:
         analysis = self.analyzer.analyze(query, context)
         decomposition = self.decomposer.decompose(query, context, analysis)
@@ -106,12 +111,38 @@ class PromptPipeline:
 
         llm_result = None
         baseline_llm = None
+        fallback_result = None
 
         if call_llm:
             client = self.llm_client or OllamaClient()
             llm_result = client.call(generation, think=think)
             if evaluate:
                 baseline_llm = client.call_baseline(query, context, think=think)
+
+            if fallback:
+                from src.evaluation.quality_scorer import QualityScorer
+
+                handler = QualityFallbackHandler(
+                    generator=self.generator,
+                    scorer=QualityScorer(
+                        embedding_client=client,
+                        judge_client=None,
+                        use_llm_judge=False,
+                    ),
+                )
+                fallback_result = handler.maybe_rerun(
+                    query,
+                    analysis,
+                    optimization,
+                    decomposition,
+                    llm_result,
+                    baseline_completion=baseline_llm.response if baseline_llm else None,
+                    llm_client=client,
+                    think=think,
+                )
+                if fallback_result.used_fallback and fallback_result.fallback_llm is not None:
+                    llm_result = fallback_result.fallback_llm
+                    generation = fallback_result.fallback_generation or generation
 
         monitoring = PerformanceMonitor.collect(
             query,
@@ -141,4 +172,5 @@ class PromptPipeline:
             baseline_llm=baseline_llm,
             monitoring=monitoring,
             evaluation=evaluation,
+            fallback=fallback_result,
         )

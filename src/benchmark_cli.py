@@ -6,7 +6,12 @@ import argparse
 import json
 from pathlib import Path
 
-from src.benchmark import DEFAULT_BENCHMARK_PATH, run_benchmark, summarize_results
+from src.benchmark import (
+    DEFAULT_BENCHMARK_PATH,
+    QUERY_TYPE_BENCHMARK_PATH,
+    run_benchmark,
+    summarize_results,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -14,11 +19,16 @@ def build_parser() -> argparse.ArgumentParser:
         description="Run labeled benchmark prompts through the pipeline.",
     )
     parser.add_argument(
+        "--suite",
+        choices=["pipeline", "query-types"],
+        default="pipeline",
+        help="Benchmark suite to run (default: pipeline routing checks)",
+    )
+    parser.add_argument(
         "--file",
         "-f",
         type=Path,
-        default=DEFAULT_BENCHMARK_PATH,
-        help="Path to benchmark JSON file",
+        help="Path to benchmark JSON file (overrides --suite default)",
     )
     parser.add_argument(
         "--id",
@@ -44,7 +54,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    results = run_benchmark(args.file, case_ids=args.case_ids)
+    benchmark_path = args.file
+    if benchmark_path is None:
+        benchmark_path = (
+            QUERY_TYPE_BENCHMARK_PATH
+            if args.suite == "query-types"
+            else DEFAULT_BENCHMARK_PATH
+        )
+
+    results = run_benchmark(benchmark_path, case_ids=args.case_ids)
     summary = summarize_results(results)
 
     if args.json:
@@ -66,7 +84,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, indent=2))
         return 0 if summary["failed"] == 0 else 1
 
-    print(f"Benchmark: {args.file}")
+    print(f"Benchmark: {benchmark_path}")
     print(f"Passed: {summary['passed']}/{summary['total']} ({summary['pass_rate']}%)")
     print()
 

@@ -8,6 +8,7 @@ from typing import Any
 from src.pipeline import PipelineResult, PromptPipeline
 
 DEFAULT_BENCHMARK_PATH = Path("data/benchmark_prompts.json")
+QUERY_TYPE_BENCHMARK_PATH = Path("data/query_type_benchmark.json")
 
 
 @dataclass
@@ -111,6 +112,16 @@ def evaluate_case(case: BenchmarkCase, result: PipelineResult) -> list[str]:
     for text in expected.get("user_prompt_contains", []):
         if text.lower() not in user_prompt:
             failures.append(f"user_prompt missing expected text: {text!r}")
+
+    max_tokens = generation.inference_params.max_tokens
+    if "max_tokens_at_most" in expected and max_tokens > expected["max_tokens_at_most"]:
+        failures.append(
+            f"max_tokens: expected <= {expected['max_tokens_at_most']}, got {max_tokens}"
+        )
+    if "max_tokens_at_least" in expected and max_tokens < expected["max_tokens_at_least"]:
+        failures.append(
+            f"max_tokens: expected >= {expected['max_tokens_at_least']}, got {max_tokens}"
+        )
 
     return failures
 

@@ -27,12 +27,15 @@ TASK_PATTERNS: dict[TaskType, tuple[str, ...]] = {
     ),
     TaskType.CODING: (
         r"\b(write code|implement|debug|refactor|fix this code|stack trace|compile error)\b",
+        r"\b(generate|build|create)\b.*\b(code|script|function|program|builder)\b",
         r"\b(python script|javascript function|typescript class|sql query)\b",
+        r"\b(in python|in javascript|in typescript)\b",
         r"\b(code snippet|run this program|syntax error)\b",
     ),
     TaskType.REASONING: (
         r"\b(why|how|explain|analyze|compare|evaluate|prove|derive|step by step)\b",
-        r"\b(trade-?offs?|pros and cons|reasoning|logic)\b",
+        r"\b(calculate|compute|show your steps|work through)\b",
+        r"\b(trade-?offs?|pros and cons|reasoning|logic|cyclomatic)\b",
     ),
     TaskType.SUMMARIZATION: (
         r"\b(summarize|summary|tl;dr|condense|brief overview)\b",
@@ -54,7 +57,8 @@ TASK_PATTERNS: dict[TaskType, tuple[str, ...]] = {
 
 REASONING_PATTERNS = (
     r"\b(why|how|explain|analyze|compare|evaluate|prove|derive)\b",
-    r"\b(step by step|chain of thought|think through|reasoning)\b",
+    r"\b(step by step|chain of thought|think through|reasoning|show your steps)\b",
+    r"\b(calculate|compute|cyclomatic)\b",
     r"\b(if .+ then|what would happen if)\b",
 )
 
@@ -84,7 +88,8 @@ AMBIGUITY_PATTERNS = (
 
 RETRIEVAL_PATTERNS = (
     r"\b(search|look up|find sources|latest|current|today|recent news)\b",
-    r"\b(according to|based on the document|from the file|attached)\b",
+    r"\b(according to|based on the document|from the file|attached|uploaded notes)\b",
+    r"\banswer from\b.*\b(notes|document|file|context|upload)\b",
 )
 
 
@@ -174,16 +179,32 @@ def detect_task_type(text: str) -> tuple[TaskType, dict[str, float]]:
             )
 
     if re.search(
-        r"\b(debug|implement|refactor|fix)\b.*\b(code|function|python|javascript|typescript|program)\b",
+        r"\b(debug|implement|refactor|fix|generate|build|create)\b.*\b(code|function|python|javascript|typescript|program|builder)\b",
         normalized,
         flags=re.IGNORECASE,
     ) or re.search(
-        r"\b(python|javascript|typescript)\b.*\b(function|script|code)\b",
+        r"\b(python|javascript|typescript)\b.*\b(function|script|code|builder)\b",
+        normalized,
+        flags=re.IGNORECASE,
+    ) or re.search(r"\bin python\b", normalized, flags=re.IGNORECASE):
+        scores[TaskType.CODING.value] = max(scores.get(TaskType.CODING.value, 0.0), 0.9)
+        scores.pop(TaskType.CONCEPT_EXPLANATION.value, None)
+
+    if re.search(
+        r"\b(calculate|compute|show your steps|cyclomatic)\b",
         normalized,
         flags=re.IGNORECASE,
     ):
-        scores[TaskType.CODING.value] = max(scores.get(TaskType.CODING.value, 0.0), 0.9)
-        scores.pop(TaskType.CONCEPT_EXPLANATION.value, None)
+        scores[TaskType.REASONING.value] = max(scores.get(TaskType.REASONING.value, 0.0), 0.85)
+        scores.pop(TaskType.CONVERSATIONAL.value, None)
+
+    if re.search(
+        r"\banswer from\b.*\b(notes|document|file|context|upload)\b",
+        normalized,
+        flags=re.IGNORECASE,
+    ):
+        scores[TaskType.EXTRACTION.value] = max(scores.get(TaskType.EXTRACTION.value, 0.0), 0.75)
+        scores[TaskType.FACTUAL.value] = max(scores.get(TaskType.FACTUAL.value, 0.0), 0.65)
 
     if not scores:
         if len(normalized.split()) <= 12 and "?" in normalized:

@@ -64,5 +64,6 @@ class PerformanceMonitor:
             total_tokens=usage.total_tokens,
             latency_ms=llm_result.latency_ms,
             energy_proxy=llm_result.energy_proxy,
+            energy_measured_j=llm_result.energy_measured_j,
             completion=llm_result.response,
         )

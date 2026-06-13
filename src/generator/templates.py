@@ -10,6 +10,7 @@ from src.analyzer.models import (
 )
 from src.constraints import extract_constraints
 from src.generator.models import InferenceParams, ModelTier
+from src.generator.policy_matrix import select_policy_action
 from src.decomposer.models import DecomposedPrompt
 from src.optimizer.models import OptimizationResult
 
@@ -63,36 +64,11 @@ QUESTION_SPLIT_RE = re.compile(r"\?(?:\s+|$)")
 
 
 def select_inference_params(analysis: ComplexityResult) -> InferenceParams:
-    if analysis.level == ComplexityLevel.CRITICAL or analysis.policy == OptimizationPolicy.MINIMAL:
-        return InferenceParams(max_tokens=768, temperature=0.2, top_p=0.9)
-
-    if analysis.task_type == TaskType.CODING or analysis.level == ComplexityLevel.HIGH:
-        return InferenceParams(max_tokens=1024, temperature=0.15, top_p=0.9)
-
-    if analysis.level == ComplexityLevel.LOW and analysis.policy == OptimizationPolicy.AGGRESSIVE:
-        return InferenceParams(max_tokens=256, temperature=0.1, top_p=0.85)
-
-    if analysis.task_type in {
-        TaskType.DEFINITION,
-        TaskType.FACTUAL,
-        TaskType.CONCEPT_EXPLANATION,
-    }:
-        return InferenceParams(max_tokens=320, temperature=0.1, top_p=0.85)
-
-    return InferenceParams(max_tokens=512, temperature=0.15, top_p=0.9)
+    return select_policy_action(analysis).inference_params
 
 
 def select_model_tier(analysis: ComplexityResult) -> str:
-    if analysis.level == ComplexityLevel.CRITICAL or analysis.policy == OptimizationPolicy.MINIMAL:
-        return ModelTier.LARGE.value
-
-    if analysis.task_type == TaskType.CODING or analysis.level == ComplexityLevel.HIGH:
-        return ModelTier.LARGE.value
-
-    if analysis.level == ComplexityLevel.LOW and analysis.policy == OptimizationPolicy.AGGRESSIVE:
-        return ModelTier.SMALL.value
-
-    return ModelTier.MEDIUM.value
+    return select_policy_action(analysis).model_tier
 
 
 def build_template_id(analysis: ComplexityResult) -> str:

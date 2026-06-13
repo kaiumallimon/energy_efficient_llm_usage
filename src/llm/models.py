@@ -31,6 +31,7 @@ class LLMCallResult:
     load_duration_ms: float | None = None
     eval_duration_ms: float | None = None
     energy_proxy: float = 0.0
+    energy_measured_j: float | None = None
     raw: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -53,4 +54,9 @@ class LLMCallResult:
                 round(self.eval_duration_ms, 2) if self.eval_duration_ms is not None else None
             ),
             "energy_proxy": round(self.energy_proxy, 4),
+            "energy_measured_j": (
+                round(self.energy_measured_j, 4)
+                if self.energy_measured_j is not None
+                else None
+            ),
         }

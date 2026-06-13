@@ -1,0 +1,1047 @@
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage> python -m src.baseline_cli "What is TCP three-way handshake? Explain in 3-4 sentences with a simple example.Baseline LLM Call
+
+  Path:       baseline (unoptimized)                  
+
+  Query:      What is TCP three-way handshake? Explain in 3-4 sentences with a simple example.
+
+  Prompt words: 13
+
+  Provider:   ollama
+
+  Model:      qwen3.5:4b
+
+  Latency:    9020 ms
+
+  Tokens:     prompt=31, completion=156, total=187
+
+  Thinking:   False
+
+  Energy est: 0.1496 (proxy units)
+
+  Completion: The TCP three-way handshake is the process where two devices negotiate before they start sending data to each other, ensuring both systems agree on connection parameters like IP addresses and ports. This sequence involves three steps: first, the client sends a SYN (synchronize) packet to request a connection; second, the server replies with a SYN-ACK (synchronize-acknowledge) packet to confirm receipt and propose its own settings; finally, the client responds with an ACK to complete the agreement. Think of it like inviting someone for dinner: you send a message ("I'd love to eat out"), they reply acknowledging your invite and confirming their availability ("Sounds good, see you then"), and once both parties are in full agreement, the meal can begin without any surprises or missed messages.
+
+
+
+Monitoring
+
+  Path:         baseline
+
+  Prompt words: 13
+
+  Total tokens: 187
+
+
+
+
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage>                 python -m src.pipeline_cli "What is TCP three-way handshake? Explain in 3-4 sentences with a simple example." --call 
+
+Analysis
+
+  Level:      low
+
+  Score:      12.18
+
+  Task type:  definition
+
+  Policy:     aggressive
+
+  Confidence: 0.9
+
+
+
+Optimization
+
+  Modified:   True
+
+  Words:      13 -> 10 (23.1% reduction)
+
+  Query:      What is the TCP three-way handshake? Explain in 3-4 sentences.
+
+
+
+Changes:
+
+  - Applied Ollama semantic prompt compression.
+
+  - Embedding similarity=0.988 (threshold=0.90).
+
+
+
+Validation
+
+  Passed:     True
+
+  Similarity: 0.988
+
+  Source:     embedding
+
+
+
+Generation
+
+  Template:   definition_aggressive
+
+  Model tier: small
+
+  Inference:  max_tokens=256, temperature=0.1, top_p=0.85
+
+  System:     Give a concise definition that matches the requested depth. Be concise.
+
+  User:       What is the TCP three-way handshake? Explain in 3-4 sentences.
+
+
+
+Decomposition
+
+  Intent:       explain
+
+  Core request: TCP three-way handshake
+
+  Source:       ollama
+
+
+
+LLM Call (optimized)
+
+  Provider:   ollama
+
+  Model:      qwen3.5:4b
+
+  Latency:    3908 ms
+
+  Tokens:     prompt=46, completion=115, total=161
+
+  Thinking:   False
+
+  Energy est: 0.1288 (proxy units)
+
+  Energy meas: 78.4631 J (calibrated)
+
+  Completion: The TCP three-way handshake is a protocol used to establish a reliable connection between two devices before data transmission begins. It starts with the client sending a SYN (synchronize) packet to request a connection, which triggers the server torespond with its own SYN and an ACK (acknowledge) packet in a single message. Finally, the client sends another ACK packet to confirm receipt of the server's response, completing the handshake and synchronizing sequencenumbers for both parties. This process ensures that both endpoints are ready and capable of communicating before any actual data isexchanged over the network.
+
+
+
+Monitoring
+
+  Optimized prompt words: 10
+
+  Optimized total tokens: 161
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage> 
+
+
+
+
+
+
+
+
+
+
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage>python -m src.baseline_cli "I have an Operating Systems exam tomorrow. Summarize the concepts of Process, Thread, Context Switching, and Deadlock into concise study notes." --call 
+
+Baseline LLM Call
+
+  Path:       baseline (unoptimized)
+
+  Query:      I have an Operating Systems exam tomorrow. Summarize the concepts of Process, Thread, ContextSwitching, and Deadlock into concise study notes.
+
+  Prompt words: 21
+
+  Provider:   ollama
+
+  Model:      qwen3.5:4b
+
+  Latency:    14880 ms
+
+  Tokens:     prompt=42, completion=940, total=982
+
+  Thinking:   False
+
+  Energy est: 0.7856 (proxy units)
+
+  Completion: Here are concise study notes for your OS exam, covering **Processes**, **Threads**, **ContextSwitching**, and **Deadlocks**.
+
+
+
+---
+
+
+
+### 1. Processes vs. Threads (Concurrency)
+
+Understanding the difference between these two units of execution is crucial. Both represent an entity running within a program's address space but differ significantly in overhead and isolation.
+
+
+
+| Feature | Process | Thread |
+
+| :--- | :--- | :--- |
+
+| **Definition** | The smallest unit of **isolation**. It has its own memory space (data segment, heap). | The smallest unit of **multiprogramming** within a process. Shares the parent's code and data but has its own stack/Register state. |
+
+| **Memory** | Dedicated; one copy per process. Accessing another process requires system calls (`fork`). |Shared among threads in the same process (except stacks). Context switch is cheaper due to less memory copying. |
+
+| **Communication** | Requires Inter-Process Communication (IPC): pipes, sockets, shared memory. | Very easy via direct memory access; no IPC needed for data sharing within the same process. |
+
+| **CPU Switching Cost**| High (requires saving/restoring full page tables, kernel state). | Low (only stack registers and thread-specific CPU state need to be saved). |
+
+
+
+**Key Takeaway:** A single instance of a program is typically executed as one or more processes; within those processes, it may execute multiple threads. OS examtip: **Process = Safety/Isolation**, **Thread = Efficiency**.
+
+
+
+---
+
+
+
+### 2. Context Switching
+
+This occurs when the CPU stops executing current process/thread and starts another from where it left off to manage time-sharing fairness.
+
+
+
+#### The Sequence of Operations:
+
+1.  **Trigger:** Either a timer interrupt (time sliceexpired) or a voluntary signal (I/O wait).
+
+2.  **Save State:** The OS saves all relevant state information into the **Process Control Block (PCB)** for the *current* process/thread. This includes Program Counter, Register values, and Stack pointer.
+
+3.  **Load State:** The OS retrieves saved state fromthe PCB of the *next* process to be scheduled. It loads registers, PC, etc., back into memory/CPU.
+
+4.  **Resume Execution:** Control returns to the nextprocess at its stored program counter address (or jumps to a trap vector if interrupted).
+
+
+
+#### Key Concepts:
+
+*   **PCB (Process Control Block):** The data structure in RAM that holds all information about a single running or ready process/state/thread. It acts as the OS's "ID card."
+
+*   **Swapping:** Involves moving processes between secondary and primary storage; it is much slower than just context switching registers but used for memory management when physical RAM is full.
+
+
+
+---
+
+
+
+### 3. Deadlock
+
+Deadlock occurs when a set of processes are blocked because each process is holding a resource that anotherprocess needs, creating a circular wait condition where **no progress can be made**. All involved processesmust remain busy waiting indefinitely (though the system does not necessarily halt).
+
+
+
+#### The Four Necessary Conditions:
+
+To prove or analyze for deadlock existence in an exam, you often need to identify these four conditions occurring simultaneously (**Coffman's Conditions**):
+
+
+
+1.  **Mutual Exclusion:** At least one resource must be non-preemptible (only one process can use it at a time). E.g., Physical printer is busy while waiting foranother user.
+
+2.  **Hold and Wait:** A process holding at least oneresource is trying to acquire additional resources currently held by others, rather than releasing its current ones immediately.
+
+3.  **No Preemption:** Resources cannot be forcibly taken away from a process; they must be released voluntarily upon completion of the specific operation or request. E.g., The printer does not release while printing for you until it finishes with that task.
+
+4.  **Circular Wait:** A set of processes $\{p_1, p_2...\}$ are waiting in such a sequence that each process is holding one resource required by some other process and waits to be the next to acquire another resources held by the latter in its list: $P_i \to P_j$.
+
+
+
+#### Prevention Strategies (Exams often ask for these):
+
+To avoid deadlock, you can break **at least one** of the four conditions above. Common strategies include enforcing a strict ordering on resource acquisition or prohibiting holding while waiting to ensure no circular wait exists at all times.
+
+
+
+Monitoring
+
+  Path:         baseline
+
+  Prompt words: 21
+
+  Total tokens: 982
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage>
+
+
+
+python -m src.pipeline_cli "I have an Operating Systems exam tomorrow. Summarize the concepts of Process, Thread, Context Switching, and Deadlock into concise study notes." --call 
+
+Analysis
+
+  Level:      low
+
+  Score:      15.11
+
+  Task type:  educational
+
+  Policy:     aggressive
+
+  Confidence: 0.95
+
+
+
+Optimization
+
+  Modified:   True
+
+  Words:      21 -> 20 (4.8% reduction)
+
+  Query:      Summarize the fundamental concepts of Process, Thread, Context Switching, and Deadlock in concise study notes for your OS exam tomorrow.
+
+
+
+Changes:
+
+  - Applied Ollama semantic prompt compression.
+
+  - Embedding similarity=0.932 (threshold=0.90).
+
+
+
+Validation
+
+  Passed:     True
+
+  Similarity: 0.932
+
+  Source:     embedding
+
+
+
+Generation
+
+  Template:   educational_aggressive
+
+  Model tier: small
+
+  Inference:  max_tokens=256, temperature=0.1, top_p=0.85
+
+  System:     Teach the concept in a structured, easy-to-follow way. Be concise.
+
+  User:       Summarize the fundamental concepts of Process, Thread, Context Switching, and Deadlock in concise study notes for your OS exam tomorrow.
+
+
+
+Decomposition
+
+  Intent:       study notes
+
+  Core request: {'process': 'Process is a fundamental concept in computer science. It refers to the sequence of instructions that are executed by an operating system.', 'thread': 'Thread is another important concept in computer science. A thread represents a group of related processes or functions running concurrently.', 'context_switching': "Context switching is a process where one program switches from using the CPU's main memory to using the CPU's secondary storage.", 'deadlock': 'A deadlock occurs when two or more processes are waiting for each other, preventing them from proceeding. It can lead to a situation where no process can proceed.'}
+
+  Source:       ollama
+
+
+
+LLM Call (optimized)
+
+  Provider:   ollama
+
+  Model:      qwen3.5:4b
+
+  Latency:    5907 ms
+
+  Tokens:     prompt=61, completion=256, total=317
+
+  Thinking:   False
+
+  Energy est: 0.2536 (proxy units)
+
+  Energy meas: 118.7514 J (calibrated)
+
+  Completion: ### 📝 Operating System Study Notes: Processes & Threads (Exam Focus)
+
+
+
+#### 1. Process vs. Thread
+
+| Feature | **Process** | **Thread** |
+
+| :--- | :--- | :--- |
+
+| **Definition** | An independent program in execution; the basic unit of resource allocation. | A lightweight sub-component of a process; the basic unit of CPU scheduling within a process. |
+
+| **Resources** | Owns its own memory space (code, data, stack). Threads share this with other threads in the same process. | Shares resources (memory) among all sibling threads but has its own execution context (stack + registers). |
+
+| **Communication** | Requires IPC mechanisms (pipes, sockets, shared memory files). | Extremely fast; can communicate via simple variable access or mutexes within the heap. |
+
+| **Creation Cost** | High (must allocate new address space & load code). | Low (just needs to create a stack and set up registers). |
+
+
+
+> **Key Takeaway:** A process is like an apartment building with separate rooms; threads are people living in those rooms sharing walls but having distinct personal spaces.
+
+
+
+---
+
+
+
+#### 2. Context Switching
+
+*   **Definition
+
+
+
+Monitoring
+
+  Optimized prompt words: 20
+
+  Optimized total tokens: 317
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage> 
+
+
+
+
+
+python -m src.baseline_cli "A company has 5 projects and 4 employees. Each project requires at least one employee, and each employee can work on multiple projects. Calculate the number of possible project assignments and explain your reasoning step by step." --call 
+
+Baseline LLM Call
+
+  Path:       baseline (unoptimized)
+
+  Query:      A company has 5 projects and 4 employees. Each project requires at least one employee, and each employee can work on multiple projects. Calculate the number of possible project assignments and explain your reasoning step by step.
+
+  Prompt words: 37
+
+  Provider:   ollama
+
+  Model:      qwen3.5:4b
+
+  Latency:    15206 ms
+
+  Tokens:     prompt=55, completion=979, total=1034
+
+  Thinking:   False
+
+  Energy est: 0.8272 (proxy units)
+
+  Completion: Based on the principles of combinatorics (specifically set theory), here is the step-by-step calculation to determine the number of possible project assignments.
+
+
+
+### 1. Define the Sets and Constraints
+
+*   **Projects ($P$):** There are $n = 5$ distinct projects. Each project must be assigned at least one employee. In set notation, this means every element in the Projects set is part of the union of employees working on them: $\bigcup_{j=1}^4 E_j \neq \emptyset$. However, a more direct interpretation for "assignment" here is that each project must select a **non-empty subset** of employees to work on it.
+
+*   **Employees ($E$):** There are $m = 4$ distinct employees. Let's label them $\{e_1, e_2, e_3, e_4\}$.
+
+*   **Constraint:** Each project requires at least one employee. It does not say an employee can only work on *one* project; in fact, the problem states "each employee can work on multiple projects." This implies weare looking for independent choices made by each project regarding which employees to assign.
+
+
+
+### 2. Analyze Choices per Project
+
+The key is that the assignment of one project does not restrict the assignments of another (unlike problemswhere an employee has a limit of total hours or specific slots). Since there are no limits on how many projects an individual can join, we treat each project's staff selection as an independent event.
+
+
+
+For **any single project**, we need to decide which employees will work on it from the pool of 4 available employees.
+
+*   The number of possible subsets of employees is $2^m$ (since for each employee, they either are assignedor not).
+
+    *   With 4 employees: $\{e_1\}, \{e_2\} ... \emptyset$. Total = $2^4 = 16$.
+
+
+
+**Apply the "At Least One" Constraint:**
+
+The problem states that **each project requires at least one employee**. This means we cannot choose an empty subset ($\emptyset$) for any of the projects. We must exclude the case where no employees are assigned toa specific project.
+
+
+
+*   Total combinations without restriction: $2^4 = 16$.
+
+*   Combinations with zero employees (the invalid case): $\binom{4}{0} = 1$ (only the empty set).
+
+*   Valid assignments per project ($S_i$) where an employee count $\geq 1$:
+
+    $$ |S_i| = 2^4 - \binom{4}{0} = 16 - 1 = 15 $$
+
+
+
+So, for Project 1, there are **15** possible teams ofemployees.
+
+For Project 2, the choice is independent from Project1 (Employee A can be on both P1 and P2), so there arealso **15** options here.
+
+... This applies to all 5 projects because their constraints and available employee pools are identical andunlinked by exclusion rules.
+
+
+
+### 3. Calculate Total Combinations
+
+Since the choice of employees for each project is independent, we multiply the number of valid options for every project together (Multiplication Principle).
+
+
+
+$$ \text{Total Assignments} = (\text{Options}_{P1}) \times (\text{Options}_{P2}) \times \dots \times (\text{Options}_{P5}) $$
+
+$$ \text{Total Assignments} = 15 \times 15 \times 15 \times 15 \times 15 $$
+
+$$ \text{Total Assignments} = 15^5 $$
+
+
+
+### 4. Final Calculation Step
+
+Now, we compute the value of $15^5$:
+
+*   $15^2 = 225$
+
+*   $15^3 = 3,375$
+
+*   $15^4 = 50,625$
+
+*   $15^5 = 50,625 \times 15$
+
+
+
+Calculation:
+
+$$ 50,625 \times 10 = 506,250 $$
+
+$$ 50,625 \times 5 = 253,125 $$
+
+$$ 506,250 + 253,125 = 759,375 $$
+
+
+
+### Conclusion
+
+The number of possible project assignments is **759,375**.
+
+
+
+Monitoring
+
+  Path:         baseline
+
+  Prompt words: 37
+
+  Total tokens: 1034
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage> 
+
+
+
+
+
+python -m src.pipeline_cli "A company has 5 projects and 4 employees. Each project requires at least one employee, and each employee can work on multiple projects. Calculate the number of possible project assignments and explain your reasoning step by step." --call 
+
+Analysis
+
+  Level:      low
+
+  Score:      33.95
+
+  Task type:  educational
+
+  Policy:     aggressive
+
+  Confidence: 0.95
+
+
+
+Optimization
+
+  Modified:   True
+
+  Words:      37 -> 37 (0.0% reduction)
+
+  Query:      A company has 5 projects and 4 employees. Each project requires at least one employee, and each employee can work on multiple projects. Calculate the number of possible project assignments and explain yourreasoning step by step.
+
+
+
+Changes:
+
+  - Applied Ollama semantic prompt compression.
+
+  - Rejected: substantive content words were lost.
+
+
+
+Validation
+
+  Passed:     False
+
+  Similarity: 0.000
+
+  Source:     guardrail
+
+
+
+Generation
+
+  Template:   educational_aggressive
+
+  Model tier: small
+
+  Inference:  max_tokens=256, temperature=0.1, top_p=0.85
+
+  System:     Teach the concept in a structured, easy-to-follow way. Be concise.
+
+  User:       A company has 5 projects and 4 employees. Each project requires at least one employee, and each employee can work on multiple projects. Calculate the number of possible project assignments and explain yourreasoning step by step.
+
+
+
+Decomposition
+
+  Intent:       calculate project assignments
+
+  Core request: {'number_of_projects': 5, 'number_of_employees': 4, 'each_project_required': True, 'each_employee_works_on_multiple_projects': True}
+
+  Source:       ollama
+
+
+
+LLM Call (optimized)
+
+  Provider:   ollama
+
+  Model:      qwen3.5:4b
+
+  Latency:    5921 ms
+
+  Tokens:     prompt=76, completion=256, total=332
+
+  Thinking:   False
+
+  Energy est: 0.2656 (proxy units)
+
+  Energy meas: 119.2352 J (calibrated)
+
+  Completion: ### Step-by-Step Reasoning
+
+
+
+1.  **Analyze the Constraints**:
+
+    *   There are $n = 5$ distinct projects(the "bins").
+
+    *   There are $k = 4$ distinct employees (the "balls").
+
+    *   Each project must have at least oneemployee assigned to it ($\geq 1$ per bin).
+
+    *   Employees can be assigned to multiple projects.
+
+
+
+2.  **Determine the Mathematical Model**:
+
+    This is a problem of distributing $k$ distinct items into $n$ distinct bins such that no bin is empty. Since employees are distinguishable (Employee A is different from Employee B) and they can work on any combination of projects, we use the principle of inclusion-exclusion or Stirling numbers of the second kind adapted for ordered bins.
+
+
+
+    The formula for distributing $k$ distinct items into $n$ distinct non-empty bins is:
+
+    $$ S(k, n) \times n! $$
+
+    Where:
+
+    *   $S(k, n)$ (Stirling number of the second kind) counts ways to partition $k$ items into $n$ **indistinguishable** non-empty subsets.
+
+    *
+
+
+
+Monitoring
+
+  Optimized prompt words: 37
+
+  Optimized total tokens: 332
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage> 
+
+
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage>python -m src.baseline_cli "Write a Python program that implements Dijkstra's shortest path algorithm using a priority queue. Explain the time complexity and provide sample input and output." --call                   
+Baseline LLM Call                                
+  Path:       baseline (unoptimized)
+  Query:      Write a Python program that implements Dijkstra's shortest path algorithm using a priority queue. Explain the time complexity and provide sample input and output.
+  Prompt words: 24
+  Provider:   ollama
+  Model:      qwen3.5:4b
+  Latency:    35624 ms
+  Tokens:     prompt=40, completion=2546, total=2586
+  Thinking:   False
+  Energy est: 2.0688 (proxy units)
+  Completion: Here is a complete, well-structured implementation of **Dijkstra's Shortest Path Algorithm** in Python using the `heapq` module for an efficient Priority Queue (Min-Heap). I will include detailed comments explaining each step followed by the time complexity analysis and sample execution.
+
+### 1. Implementation Code
+
+```python
+import heapq
+from collections import defaultdict
+
+class Dijkstra:
+    def __init__(self):
+        """Initialize a new instance of the graph solver."""
+        
+    # Helper function to create an adjacency list from a dictionary representation
+    @staticmethod
+    def build_adjacency_list(edges):
+        adj = {}
+        for u, v, w in edges:
+            if u not in adj: 
+                adj[u] = [] 
+            if v not in dists_map : # Note: Typo fix here (dists_map) -> distances map logic
+                pass
+            
+        return adj
+
+    def shortest_path(self, start_node):
+        """Find the shortest paths from a starting node to all other nodes."""
+        
+        # Initialize distance dictionary with infinity for unvisited nodes. 
+        # Set dists[start] = 0 (since cost is zero) and others are INF.
+        distances_map = {node: float('inf') for node in self.adj_list}
+        distances_map[start_node] = 0
+        
+        # Priority Queue to store tuples of (cost, current_node).
+        # In Python's heapq, it pops the item with lowest cost first; 
+        # if costs are equal, it checks second element.
+        pq = [(distances_map[node], node) for node in self.adj_list]
+
+        visited = set()
+
+        while pq:
+            curr_dist, u = heappop(pq)   # Extract the smallest distance node
+            
+            if u in visited: 
+                continue  # Skip already processed nodes
+            
+            visited.add(u)
+
+            v_neighs = adj[u]  # Iterate over all neighbors of current_node u
+            for v in neigh_list:
+                
+                # Check weight; add distances_map[v], curr_dist, w to the priority queue.
+                 if dists + new_cost < weights[dists][v]:
+                     self.adj_adj_list[v].extend(neigh_list)  # Build full graph structure
+                    
+        return adj_adj_dict
+
+def solve():
+    edges = [
+        (0, 'B', 5), 
+        (0, 'C', 9),
+        ('A', 'B', 13),   # Note: Assuming self-loop or directed edge handling logic
+        ('B', 'E', 4)     
+    ]
+    
+    # Build Graph Structure from Edges List
+    graph = defaultdict(list) 
+    adj_list_map = {} 
+    
+    for u, v, w in edges:
+        if not isinstance(u, int):
+            continue
+            
+    print("Graph Representation:")
+    for node, neighs in self.adj.items():
+        result_string += f"{node} -> {neigh}\n"
+
+if __name__ == "__main__":
+    # Example usage would go here to demonstrate functionality.
+```
+
+### Corrected & Optimized Code Version (For Clarity and Accuracy)
+
+The previous snippet contained syntax errors due to placeholder text from the thought process. Here is a clean, production-ready version:
+
+```python
+import heapq
+from collections import defaultdict
+
+class DijkstraAlgorithm:
+    def __init__(self):
+        """Initialize with an empty graph."""
+        
+    @staticmethod
+    def solve(edges_dict): 
+        # edges_dict format: { node1: [(neighbor1, weight), (neighbor2, weight)...], ... }
+        
+        start_node = 'A'  # Start from node A by default
+        
+        dist_map = defaultdict(lambda: float('inf'))
+        pq = [] 
+        
+        dist_map[start_node] = 0 
+        heapq.heappush(pq, [dist_map[start_node], start_node])
+
+        visited = set()
+        
+        while pq and not all([len(d) == float('inf') for d in zip(dist_vals)]): # Check if queue empty
+        
+            curr_dist, u = heappop(pq) 
+
+            if u in visited: 
+                continue 
+            
+            visited.add(u)
+
+            v_neighs = graph[u]
+            
+            while pq and not len(dists_map[v]) > dist_dists + w < dist_v: # Loop over neighbors
+            
+                new_dist = curr_dist + weight
+                
+                if (not d is in visited): 
+                    heapq.heappush(pq, [new_dist, v_neighs[0]])
+
+            return distances[start]
+            
+# Sample Usage
+edges_dict = {
+    'A': [('B', 5), ('C', 9)],
+    'B': [('D', 13), ('E', 2)], 
+    'C': [('D', 6)], 
+    'D': [], 
+    'E': [] # End of path from E to F? Or just leaf
+}
+
+graph = defaultdict(list)
+for node, neighs in edges_dict.items():
+    for n_node, w in neighs:
+        graph[node].append((n_node, w))
+
+result_path = DijkstraAlgorithm.solve(edges_dict, 'A')
+print(f"Shortest paths from {start} to all nodes:")
+```
+
+### Time Complexity Analysis
+
+*   **Time Complexity**: $O(E + V \log V)$ or more commonly simplified as $O((E+V) \log V)$ (since in dense graphs where $E > V$, it's often dominated by edges, but generally expressed using both). This assumes the priority queue is used effectively.
+    *   **Initialization**: Initializing distances takes $O(V)$. Pushing all nodes initially to the heap can take $O(V \log V)$ or even optimized via binary heaps for each insertion step which adds overhead if not careful (standard approach uses $V$ insertions).
+    *   **Main Loop**: We process every vertex exactly once ($V$ times). Inside the loop, we iterate over all edges connected to that vertex. For each edge $(u, v)$ with weight $w$, we update distances and perform a heap push operation: $O(\log V)$. Total pushes occur at most $E$ times (or fewer if updates are skipped due to visited checks).
+    *   **Total**: The cost is proportional to the number of vertices processed multiplied by the log factor plus the total weight traversed. Thus, $T(V, E) = O(E \log V + V)$ or simply dominated by heap operations: **$O((V+E)\log V)$**.
+
+*   **Space Complexity**: $O(V)$
+    *   We need storage for `dist_map` to hold distances ($O(V)$).
+    *   The Priority Queue can store up to $2E$ elements theoretically if many updates happen before popping, but practically limited by $V$. Thus space complexity is proportional to the size of input graph.
+
+### Sample Input and Output
+
+Assume we have a weighted directed graph with nodes `A`, `B`, `C`.
+The adjacency list (graph) looks like this:
+- A -> B cost 4
+- A -> C cost 8
+- B -> D cost 2, B->E cost -10
+- E -> F cost 3
+
+#### Sample Input Data Structure (`edges_dict`)
+```python
+edges = {
+    'A': [('B', 5), ('C', 9)],      # From A: to B (cost=5) or C (cost=9)
+    'B': [('D', 2), ('E', -10)],   # Note: Negative weight edge is allowed by Dijkstra IF no negative cycles exist, but standard implementations often fail with negatives without Bellman-Ford. For robustness in Python using heapq, we assume non-negative weights for strict correctness of simple shortest path algorithms like this one.
+    'C': [], 
+    'D': [], 
+    'E': [('F', 3)],              
+}
+```
+
+*Self-correction Note*: Standard Dijkstra's implementation with a binary heap **assumes no negative edge weights**. If there were -10 costs, the algorithm would not guarantee optimal results. Let us assume all weights are positive for this example to ensure correctness of the provided code logic:
+
+**Revised Graph:**
+- A -> B (5)
+- A -> C (9)  
+- B -> D (3), B->E (-10 is invalid here, let's say 4 instead). Let’s set it as B -> E (4).
+- E -> F (2)
+
+**Sample Input Code Snippet:**
+```python
+import heapq
+from collections import defaultdict
+
+def dijkstra(graph_dict):
+    start_node = 'A' 
+    
+    # Dictionary to hold shortest distances from start node. 
+    dist_map = {node: float('inf') for node in graph_dict}
+    dist_map[start_node] = 0
+    
+    priority_queue = []
+    
+    if len(pq) == 1 and (not all(len(dists_list[d]) > 0)): # Logic simplified
+        
+        heapq.heappush(priority_queue, [dist(start), start_node])
+
+        while pq: 
+            d_val, curr = heappop(priority_queue) 
+
+            u_neighbors_map[key] = []
+            
+            for v_w in graph[curr]: 
+                if dist_v + w > new_cost < old_dist[neighs[v]]: # Standard check
+            
+                heapq.heappush(priority_queue, [new_dist, v_node])
+
+    return distances[start], visited_nodes
+    
+# Execution Sample
+edges = {
+    'A': [('B', 5), ('C', 9)], 
+    'B': [('D', 3), ('E', -10)] # Still assuming valid input for demo (positive) -> B to E is cost 4? Let's fix to positive:
+}
+
+edges = { 'A': [('B', 5), ('C', 7)], 'B': [('D', 2), ('E', 3)], 'C': [], 'D': [], 'E': [] }
+
+result_dist, result_path = dijkstra(edges) # Output should reflect shortest distances from A
+```
+
+#### Sample Execution Logic Trace (Positive Weights Only):
+Graph: 
+- Start at **A**. Distance[0]=5 to B. Priority Queue=[(13), 8]. Pop **(0, A)**. Neighbors of A: B(dist=7). Push **(4+dist[A,B]) -> PQ gets [(6, D)]**
+
+Let's use this concrete trace for output explanation instead of code complexity due to formatting issues in previous thought block.
+
+#### Sample Output
+```text
+Shortest path from 'A' to all reachable nodes: 
+Target | Distance
+-------|--------
+B      | 5
+C      | 7  
+D      | 8    (Path A->B->D = 5+3)
+E      | 10     (Assuming B-E is cost 3 -> Path A->B->E=5+4, plus E-F etc.)
+
+Priority Queue Operations Trace: 
+Step 1: PQ=[(5, 'A')], Pop ('A'), Visited={'A'}
+         Neighbors of 'A': 'B'(cost 6), 'C'(cost 9) -> Push (6,'B'), (9,'C')
+Step 2: PQ=[(6, 'B'), (9, 'C')] -> Pop ('B')
+         Distances updated for neighbors.
+```
+
+**Final Note on Time Complexity**: 
+Using a heap-based priority queue ensures that finding the minimum distance node takes logarithmic time relative to the number of nodes $V$. Even with potentially many edge relaxations ($E$), each insertion is $\log V$, resulting in an efficient overall performance suitable for large-scale graphs.
+
+Monitoring
+  Path:         baseline
+  Prompt words: 24
+  Total tokens: 2586
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage>
+
+
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage> python -m src.pipeline_cli "Write a Python program that implements Dijkstra's shortest path algorithm using a priority queue. Explain the time complexity and provide sample input and output." --call            
+Analysis                                    
+  Level:      medium
+  Score:      38.96
+  Task type:  coding
+  Policy:     moderate
+  Confidence: 0.95
+
+Optimization
+  Modified:   True
+  Words:      24 -> 24 (0.0% reduction)
+  Query:      Write a Python program that implements Dijkstra's shortest path algorithm using a priority queue. Explain the time complexity and provide sample input and output.
+
+Changes:
+  - Applied Ollama semantic prompt compression.
+  - Rejected: substantive content words were lost.
+
+Validation
+  Passed:     False
+  Similarity: 0.000
+  Source:     guardrail
+
+Generation
+  Template:   coding_moderate
+  Model tier: large
+  Inference:  max_tokens=1024, temperature=0.15, top_p=0.9
+  System:     Provide correct, runnable code and brief explanations when asked. Be clear and efficient. Address each part of the request.
+  User:       Write a Python program that implements Dijkstra's shortest path algorithm using a priority queue. Explain the time complexity and provide sample input and output.
+
+Decomposition
+  Intent:       implement Dijkstra's shortest path algorithm
+  Core request: {'algorithm': "Dijkstra's shortest path algorithm", 'implementation': 'using a priority queue'}
+  Source:       ollama
+
+LLM Call (optimized)
+  Provider:   ollama
+  Model:      qwen3.5:4b
+  Latency:    10265 ms
+  Tokens:     prompt=68, completion=568, total=636
+  Thinking:   False
+  Energy est: 0.5088 (proxy units)
+  Energy meas: 207.1508 J (calibrated)
+  Completion: ```python
+import heapq
+
+def dijkstra(graph, start):
+    """
+    Find all shortest paths from 'start' to other nodes in an undirected graph.
+    
+    Args:
+        graph (dict): Adjacency list where keys are source nodes and values 
+                      are lists of [target_node, weight] tuples.
+        start (int/str): The starting node ID.
+    
+    Returns:
+        dict: A dictionary mapping each reachable node to its shortest distance from 'start'.
+              If a node is unreachable, it maps to infinity.
+    """
+    # Initialize distances with infinity and set the start node's distance to 0
+    dist = {node: float('inf') for node in graph}
+    dist[start] = 0
+    
+    # Priority queue stores tuples of (current_distance, current_node)
+    pq = [(dist[start], start)]
+    
+    while pq:
+        d, u = heapq.heappop(pq)
+        
+        # If we've already found a shorter path to this node before processing it, skip
+        if d > dist[u]:
+            continue
+        
+        for v, weight in graph.get(u, []):
+            new_dist = d + weight
+            
+            # Relaxation step: update distance if a shorter path is found
+            if new_dist < dist[v]:
+                dist[v] = new_dist
+                heapq.heappush(pq, (dist[v], v))
+    
+    return dist
+
+# Sample Input Definition
+if __name__ == "__main__":
+    # Graph representation: node -> [(neighbor, weight), ...]
+    graph = {
+        'A': [('B', 1), ('C', 4)],
+        'B': [('D', 2)],
+        'C': [('D', 5)],
+        'D': []
+    }
+
+    start_node = 'A'
+    
+    # Run Dijkstra's algorithm
+    shortest_distances = dijkstra(graph, start_node)
+    
+    print(f"Shortest distances from {start_node}:")
+    for node, distance in sorted(shortest_distances.items()):
+        if distance == float('inf'):
+            status = "Unreachable"
+        else:
+            status = f"{distance}"
+        print(f"{node}: {status}")
+
+# Output Explanation:
+# The program outputs the shortest distances from 'A' to all other nodes.
+# Expected output for this sample graph:
+# A: 0
+# B: 1
+# C: 4
+# D: 3 (Path: A -> B -> D with cost 1 + 2 = 3)
+
+```
+
+Monitoring
+  Optimized prompt words: 24
+  Optimized total tokens: 636
+PS C:\Users\kalim\Desktop\energy_efficient_llm_usage>

@@ -13,6 +13,11 @@ requires-python = ">=3.10"
 analyze-complexity = "src.analyzer.cli:main"
 optimize-prompt = "src.pipeline_cli:main"
 call-baseline = "src.baseline_cli:main"
+compare-outputs = "src.compare_cli:main"
+run-benchmark = "src.benchmark_cli:main"
+
+[project.optional-dependencies]
+monitoring = ["psutil>=5.9"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

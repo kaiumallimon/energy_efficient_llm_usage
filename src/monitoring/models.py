@@ -17,6 +17,7 @@ class PathMetrics:
     total_tokens: int | None = None
     latency_ms: float | None = None
     energy_proxy: float | None = None
+    energy_measured_j: float | None = None
     completion: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -30,6 +31,11 @@ class PathMetrics:
             "total_tokens": self.total_tokens,
             "latency_ms": round(self.latency_ms, 2) if self.latency_ms is not None else None,
             "energy_proxy": round(self.energy_proxy, 4) if self.energy_proxy is not None else None,
+            "energy_measured_j": (
+                round(self.energy_measured_j, 4)
+                if self.energy_measured_j is not None
+                else None
+            ),
             "completion": self.completion,
         }
 
