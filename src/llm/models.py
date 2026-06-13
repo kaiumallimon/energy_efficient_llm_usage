@@ -33,11 +33,16 @@ class LLMCallResult:
     energy_proxy: float = 0.0
     raw: dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def completion(self) -> str:
+        return self.response
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "model": self.model,
             "provider": self.provider,
             "response": self.response,
+            "completion": self.response,
             "thinking": self.thinking,
             "usage": self.usage.to_dict(),
             "latency_ms": round(self.latency_ms, 2),

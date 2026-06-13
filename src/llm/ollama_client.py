@@ -55,6 +55,21 @@ class OllamaClient:
         resolved_think = think if think is not None else self._auto_think(generated)
         return self.chat(generated.messages, think=resolved_think)
 
+    def call_baseline(
+        self,
+        query: str,
+        context: str | None = None,
+        *,
+        think: bool | None = None,
+    ) -> LLMCallResult:
+        """Send the raw user prompt without optimization or system instructions."""
+        user_content = query.strip()
+        if context:
+            user_content = f"Context:\n{context.strip()}\n\nRequest:\n{user_content}"
+
+        messages = [{"role": "user", "content": user_content}]
+        return self.chat(messages, think=think)
+
     def _resolve_think(self, think: bool | None) -> bool | None:
         if think is not None:
             return think
