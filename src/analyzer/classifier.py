@@ -57,7 +57,7 @@ class ComplexityAnalyzer:
     def _score(self, signals: PromptSignals) -> float:
         score = TASK_COMPLEXITY_WEIGHT[signals.task_type]
 
-        score += min(20.0, signals.estimated_tokens / 25.0)
+        score += min(20.0, signals.word_count / 19.0)
         score += signals.reasoning_score * 18.0
         score += signals.constraint_score * 12.0
         score += signals.multi_part_score * 14.0
@@ -171,7 +171,6 @@ class ComplexityAnalyzer:
         return {
             "word_count": signals.word_count,
             "sentence_count": signals.sentence_count,
-            "estimated_tokens": signals.estimated_tokens,
             "question_count": signals.question_count,
             "task_type_scores": signals.task_type_scores,
             "reasoning_score": round(signals.reasoning_score, 3),

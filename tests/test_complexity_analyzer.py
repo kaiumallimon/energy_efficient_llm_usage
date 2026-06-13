@@ -107,3 +107,4 @@ class TestResultShape:
         assert "signals" in payload
         assert "rationale" in payload
         assert isinstance(payload["rationale"], list)
+        assert "estimated_total_tokens" not in payload

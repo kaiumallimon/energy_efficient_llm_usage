@@ -209,6 +209,7 @@ energy_efficient_llm_usage/
 │   ├── analyzer/           # Query complexity analyzer (implemented)
 │   │   ├── classifier.py   # Scoring and level assignment
 │   │   ├── signals.py      # Feature extraction from prompts
+│   │   ├── token_estimate.py  # Input/output/total token estimation
 │   │   ├── models.py       # Shared types and result objects
 │   │   └── cli.py          # Command-line interface
 │   ├── optimizer/          # Energy-aware prompt optimizer (planned)
@@ -244,7 +245,7 @@ python -m src.analyzer.cli "Compare SQL and NoSQL step by step" --json
 The first implemented module classifies prompt complexity before optimization.
 
 **Input:** user query and optional external context  
-**Output:** complexity level, score, detected task type, recommended optimization policy, signals, and rationale
+**Output:** complexity level, score, detected task type, recommended optimization policy, estimated token usage (input + output + total), signals, and rationale
 
 ### Complexity levels
 
@@ -278,6 +279,7 @@ result = analyzer.analyze(
 
 print(result.level)       # ComplexityLevel.HIGH
 print(result.policy)      # OptimizationPolicy.CONSERVATIVE
+print(result.estimated_total_tokens)  # estimated input + output tokens
 print(result.to_dict())   # full structured output
 ```
 

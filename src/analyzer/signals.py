@@ -75,7 +75,6 @@ RETRIEVAL_PATTERNS = (
 class PromptSignals:
     word_count: int
     sentence_count: int
-    estimated_tokens: int
     question_count: int
     task_type: TaskType
     task_type_scores: dict[str, float]
@@ -87,11 +86,6 @@ class PromptSignals:
     retrieval_score: float
     context_word_count: int
     context_ratio: float
-
-
-def estimate_tokens(text: str) -> int:
-    words = WORD_RE.findall(text)
-    return max(1, int(len(words) * 1.3))
 
 
 def count_pattern_hits(text: str, patterns: tuple[str, ...]) -> int:
@@ -155,7 +149,6 @@ def extract_signals(query: str, context: str | None = None) -> PromptSignals:
     return PromptSignals(
         word_count=word_count,
         sentence_count=sentence_count,
-        estimated_tokens=estimate_tokens(combined),
         question_count=question_count,
         task_type=task_type,
         task_type_scores=task_type_scores,

@@ -33,6 +33,9 @@ Each call to `ComplexityAnalyzer.analyze()` returns a `ComplexityResult` with:
 | `task_type` | e.g. `factual`, `coding`, `reasoning` | Detected intent category |
 | `policy` | `aggressive` / `moderate` / `conservative` / `minimal` | Recommended optimization strength |
 | `confidence` | `0.0 – 0.95` | Heuristic certainty of the classification |
+| `estimated_input_tokens` | int | Estimated prompt tokens sent to the model |
+| `estimated_output_tokens` | int | Estimated completion tokens returned by the model |
+| `estimated_total_tokens` | int | Estimated overall usage (`input + output`) |
 | `signals` | dict | Raw feature values used internally |
 | `rationale` | list[str] | Human-readable explanation lines |
 
@@ -42,11 +45,12 @@ Example:
 from src.analyzer import ComplexityAnalyzer
 
 result = ComplexityAnalyzer().analyze("What is the capital of France?")
-print(result.level)       # ComplexityLevel.LOW
-print(result.score)         # ~0.28
-print(result.task_type)   # TaskType.FACTUAL
-print(result.policy)      # OptimizationPolicy.AGGRESSIVE
-print(result.confidence)  # ~0.79
+print(result.level)                    # ComplexityLevel.LOW
+print(result.score)                      # ~0.28
+print(result.task_type)                # TaskType.FACTUAL
+print(result.policy)                   # OptimizationPolicy.AGGRESSIVE
+print(result.confidence)               # ~0.79
+print(result.estimated_total_tokens)   # ~41 (7 input + 34 output)
 ```
 
 ## Module layout
@@ -56,6 +60,7 @@ src/analyzer/
 ├── README.md         # This document
 ├── models.py         # Enums and ComplexityResult dataclass
 ├── signals.py        # Feature extraction from prompt text
+├── token_estimate.py # Input/output/total token estimation
 ├── classifier.py     # Scoring, level/policy mapping, confidence
 └── cli.py            # Command-line interface
 ```
@@ -71,11 +76,14 @@ flowchart TD
     D --> E
     E --> F[_level bucket + overrides]
     F --> G[_policy map level to strategy]
+    F --> K[estimate_token_usage]
     E --> H[_confidence heuristic]
     F --> I[_rationale human explanation]
+    K --> I
     G --> J[ComplexityResult]
     H --> J
     I --> J
+    K --> J
 ```
 
 Implementation entry point:
@@ -86,7 +94,79 @@ score = self._score(signals)
 level = self._level(score, signals)
 policy = self._policy(level, signals)
 confidence = self._confidence(signals, score)
+token_usage = estimate_token_usage(signals, level)
 ```
+
+---
+
+## Step 7: Token usage estimation
+
+File: `token_estimate.py`
+
+Before any LLM call, the analyzer estimates how many tokens the request is likely to consume. This gives the pipeline an early **cost/energy proxy** for monitoring and later comparison against optimized prompts.
+
+### Input tokens
+
+Input tokens come directly from the prompt text (query + optional context):
+
+```
+input_tokens = estimated_tokens
+estimated_tokens = max(1, int(word_count × 1.3))
+```
+
+This uses the same word-based approximation as signal extraction.
+
+### Output tokens
+
+Output tokens are estimated from task type and complexity level, because the model has not run yet.
+
+Base output size by task type:
+
+| Task type | Base output tokens |
+|-----------|-------------------|
+| factual | 45 |
+| conversational | 55 |
+| creative | 320 |
+| summarization | scales with input (`15%` of input, clamped 120–700) |
+| extraction | 120 |
+| reasoning | 420 |
+| coding | 550 |
+
+Level multiplier:
+
+| Level | Multiplier |
+|-------|------------|
+| low | 0.75 |
+| medium | 1.0 |
+| high | 1.35 |
+| critical | 1.25 |
+
+Adjustments:
+
+```
+if reasoning_score >= 0.4: output × 1.2
+if multi_part_score >= 0.3: output += 50 + (80 × multi_part_score)
+if constraint_score >= 0.3: output × 0.9
+if coding task: output = max(output, 250)
+if safety_score >= 0.35: output × 1.15
+```
+
+### Total tokens
+
+```
+total_tokens = input_tokens + output_tokens
+```
+
+Example:
+
+```
+Prompt: "What is the capital of France?"
+Input: 7 tokens
+Output: ~34 tokens (factual base 45 × low multiplier 0.75)
+Total: ~41 tokens
+```
+
+Assumption: output length correlates with task type and complexity, even before generation happens. This is an estimate for measurement, not an exact provider billing value.
 
 ---
 
@@ -365,6 +445,9 @@ Result:
 | level | low |
 | policy | aggressive |
 | confidence | ~0.79 |
+| estimated_input_tokens | 7 |
+| estimated_output_tokens | ~34 |
+| estimated_total_tokens | ~41 |
 
 Why confidence is relatively high:
 
@@ -493,6 +576,7 @@ This layer is intentionally simple for a course prototype.
 
 - `models.py` — enums and result object
 - `signals.py` — feature extraction logic
+- `token_estimate.py` — input/output/total token estimation
 - `classifier.py` — scoring and decision rules
 - `cli.py` — command-line entry point
 - `../../tests/test_complexity_analyzer.py` — unit tests
