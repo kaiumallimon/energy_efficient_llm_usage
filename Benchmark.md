@@ -2,6 +2,8 @@
 
 Based on the four benchmark runs, the system is showing **clear evidence that adaptive optimization is working**, but there are also some weaknesses that need attention.
 
+This version includes the actual raw-vs-optimized response behavior captured in `benchmark.txt`, so the comparison is not just metric-based. It shows where the optimizer preserved quality, where it improved the answer, and where it broke task understanding.
+
 ---
 
 ## Overall Verdict
@@ -44,6 +46,16 @@ The framework successfully reduces energy, latency, and token usage while mainta
 | Example Included         | Yes      | No        |
 | User Intent Satisfaction | Good     | Good      |
 
+### Response Details
+
+**Raw response**
+- Explained the handshake in 3 steps and added a friendly dinner analogy.
+- Used a longer, more conversational style than necessary for a simple definition.
+
+**Optimized response**
+- Kept the definition, the 3-step handshake, and the purpose of establishing a connection.
+- Removed the extra analogy and trimmed the wording for brevity.
+
 ### Verdict
 
 The optimizer correctly recognized a simple definition query and produced a shorter response with no meaningful quality loss.
@@ -70,6 +82,16 @@ The optimizer correctly recognized a simple definition query and produced a shor
 | Exam Readiness | Excellent | Good      |
 | Conciseness    | Poor      | Excellent |
 | Structure      | Good      | Good      |
+
+### Response Details
+
+**Raw response**
+- Produced a very long set of study notes with tables, elaboration, and repeated explanations.
+- Covered the requested topics, but with a lot of token-heavy prose that was not exam-efficient.
+
+**Optimized response**
+- Reframed the request into concise study notes.
+- Kept the answer focused on core exam concepts instead of over-explaining.
 
 ### Observation
 
@@ -103,6 +125,16 @@ Large savings with acceptable quality retention.
 | Final Answer       | Correct  | Incomplete |
 | Reasoning          | Good     | Flawed     |
 | Completeness       | Good     | Poor       |
+
+### Response Details
+
+**Raw response**
+- Correctly modeled the problem as choosing a non-empty subset of 4 employees for each of 5 projects.
+- Derived the correct total as $(2^4 - 1)^5 = 15^5 = 759{,}375$.
+
+**Optimized response**
+- Reframed the task as distributing distinct balls into distinct bins, which is a different combinatorics problem.
+- Became incomplete after introducing the wrong model, so the final answer was not preserved.
 
 ### Major Issue
 
@@ -171,6 +203,16 @@ Bad reasoning preservation.
 | Time Complexity | Yes      | Missing   |
 | Sample I/O      | Partial  | Partial   |
 | Code Quality    | Poor     | Good      |
+
+### Response Details
+
+**Raw response**
+- Produced a very long, unstable answer with broken code fragments, contradictory fixes, and hallucinated logic.
+- The output was not runnable and did not provide a trustworthy implementation.
+
+**Optimized response**
+- Produced a clean `heapq`-based Dijkstra implementation.
+- Returned a compact example graph, shortest-path output, and a much more usable explanation.
 
 ### Interesting Result
 
