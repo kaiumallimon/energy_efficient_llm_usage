@@ -1,0 +1,149 @@
+{
+    "raw": "",
+    "framework": {
+        "analysis": {
+            "level": "low",
+            "score": 22.54,
+            "task_type": "educational",
+            "policy": "aggressive",
+            "confidence": 0.95,
+            "signals": {
+                "word_count": 71,
+                "sentence_count": 3,
+                "question_count": 0,
+                "task_type_scores": {
+                    "concept_explanation": 0.45,
+                    "educational": 1.0
+                },
+                "reasoning_score": 0.0,
+                "constraint_score": 0.0,
+                "safety_score": 0.0,
+                "multi_part_score": 0.0,
+                "ambiguity_score": 0.6,
+                "retrieval_score": 0.0,
+                "filler_score": 0.24,
+                "repetition_score": 0.0,
+                "verbosity_score": 0.168,
+                "context_word_count": 0,
+                "context_ratio": 0.0
+            },
+            "rationale": [
+                "The user is asking for an explanation of supervised learning in a way that is easy for beginners. This falls under the 'definition' category.",
+                "Detected task type: educational.",
+                "Composite complexity score: 22.5 -> low."
+            ],
+            "intent_source": "ollama"
+        },
+        "decomposition": {
+            "intent": "explain the concept of supervised learning in a way that is easy for beginner to understand",
+            "core_request": "{'entities': [], 'constraints': {}, 'redundant_segments': [], 'context_summary': 'The user wants to learn about supervised learning, which involves training models on labeled data. The goal is to provide an explanation of this concept in a way that is accessible to beginners.', 'requires_context': True}",
+            "entities": [],
+            "constraints": [],
+            "redundant_segments": [],
+            "context_summary": "The user wants to learn about supervised learning, which involves training models on labeled data. The goal is to provide an explanation of this concept in a way that isaccessible to beginners.",
+            "requires_context": true,
+            "source": "ollama"
+        },
+        "optimization": {
+            "original_query": "I am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learning in a way that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before moving to more advanced topics",
+            "optimized_query": "I am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learningin a way that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before moving to more advanced topics",
+            "original_context": null,
+            "optimized_context": null,
+            "policy": "aggressive",
+            "complexity_level": "low",
+            "changes": [
+                "Applied Ollama semantic prompt compression.",
+                "Rejected: substantive content words were lost."
+            ],
+            "original_word_count": 71,
+            "optimized_word_count": 71,
+            "word_reduction_percent": 0.0,
+            "was_modified": true,
+            "optimizer_source": "llm",
+            "validation": {
+                "passed": false,
+                "similarity": 0.0,
+                "threshold": 0.9,
+                "original_query": "I am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learning in a way that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before movingto more advanced topics",
+                "candidate_query": "explain the concept of supervised learning in a way that is accessibleto beginners",
+                "accepted_query": "I am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learning in a way that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before movingto more advanced topics",
+                "source": "guardrail",
+                "notes": [
+                    "Rejected: substantive content words were lost."
+                ]
+            }
+        },
+        "generation": {
+            "system_prompt": "Teach the concept in a structured, easy-to-follow way. Be concise.",
+            "user_prompt": "Request:\nI am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learning in a way that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before moving to more advanced topics\n\nConstraints:\n- many important concepts that a student must knowbefore moving to more advanced topics",
+            "context": null,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "Teach the concept in a structured, easy-to-follow way. Be concise."
+                },
+                {
+                    "role": "user",
+                    "content": "Request:\nI am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learning in a way that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before moving to more advanced topics\n\nConstraints:\n- many important concepts that a student must knowbefore moving to more advanced topics"
+                }
+            ],
+            "full_prompt": "System:\nTeach the concept in a structured, easy-to-follow way. Be concise.\n\nUser:\nRequest:\nI am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learning in away that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before moving to more advanced topics\n\nConstraints:\n- many important concepts that a student must know before moving to more advanced topics",
+            "model_tier": "small",
+            "template_id": "educational_aggressive",
+            "task_type": "educational",
+            "complexity_level": "low",
+            "policy": "aggressive",
+            "inference_params": {
+                "max_tokens": 256,
+                "temperature": 0.1,
+                "top_p": 0.85
+            },
+            "inference_options": {
+                "num_predict": 256,
+                "temperature": 0.1,
+                "top_p": 0.85
+            },
+            "sections": {
+                "query": "I am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learning in a way that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before moving to more advanced topics",
+                "request": "Request:\nI am recently started learning machine learning and artificial intelligence. There are so many different resources available online that I am feeling somewhat overwhelmed. Therefore I would really appreciate it if you could explaun the concept of supervised learning in a way that is easy for beginner to understand. Please include examples, practical applications, advantages, disadvantages, and many important concepts that a student must know before moving to more advanced topics\n\nConstraints:\n- many important concepts that a student must know before moving to more advanced topics",
+                "intent": "explain the concept of supervised learning in a way that is easy for beginner to understand",
+                "core_request": "{'entities': [], 'constraints': {}, 'redundant_segments': [], 'context_summary': 'The user wants to learn about supervised learning, which involves training models on labeled data. The goal is to provide an explanation of this concept in a way that is accessible to beginners.', 'requires_context': True}"
+            },
+            "notes": []
+        },
+        "llm": {
+            "model": "qwen3.5:4b",
+            "provider": "ollama",
+            "response": "# Supervised Learning: A Beginner's Guide\n\nSupervised learning is the most common type of machine learning. It works like **learning with an answer key**. You feed the model data where both the input (features) and the correct output (label/target) are known, allowing itto learn a mapping function between them.\n\n---\n\n### 1. The Core Concept\nImagine you show a student photos of cats labeled \"Cat\" and dogs labeled \"Dog.\" Over time, they recognize patterns in the images that correlate with those labels. Eventually, when shown a new photo without a label, they can predict whether it's a cat or dog based on what they learned.\n\n*   **Input ($X$):** Features (e.g., pixel values, temperature).\n*   **Output ($y$):** Labels/Targets (e.g., \"Cat\", \"Dog\").\n*   **Goal:** Learn the function $f(X) \\approx y$.\n\n---\n\n### 2. Two Main Types of Supervised Learning\n\n#### A. Regression (Predicting Numbers)\nUsed when the output is a continuous value.\n*   *Example:* Predicting house prices based on square footage and location.\n*  *Output:* $\\$350",
+            "completion": "# Supervised Learning: A Beginner's Guide\n\nSupervised learning is the most common type of machine learning. It works like **learning with an answer key**. You feed the model data where both the input (features) and the correct output (label/target) are known, allowing it to learn a mapping function between them.\n\n---\n\n### 1. The Core Concept\nImagine you show a student photos of cats labeled \"Cat\" and dogs labeled \"Dog.\" Over time, they recognize patterns in the images that correlate with those labels. Eventually, when shown a new photo without alabel, they can predict whether it's a cat or dog based on what they learned.\n\n*   **Input ($X$):** Features (e.g., pixel values, temperature).\n*   **Output ($y$):** Labels/Targets (e.g., \"Cat\", \"Dog\").\n*   **Goal:** Learn the function $f(X) \\approx y$.\n\n---\n\n### 2. Two Main Types of Supervised Learning\n\n#### A. Regression (Predicting Numbers)\nUsed when the output is acontinuous value.\n*   *Example:* Predicting house prices based on square footage and location.\n*   *Output:* $\\$350",
+            "thinking": null,
+            "usage": {
+                "prompt_tokens": 135,
+                "completion_tokens": 256,
+                "total_tokens": 391,
+                "thinking_enabled": false
+            },
+            "latency_ms": 5976.15,
+            "load_duration_ms": 263.15,
+            "eval_duration_ms": 3278.88,
+            "energy_proxy": 0.3128,
+            "energy_measured_j": 119.6487
+        },
+        "completion": "# Supervised Learning: A Beginner's Guide\n\nSupervised learning is the most common type of machine learning. It works like **learning with an answer key**. You feed the model data where both the input (features) and the correct output (label/target) are known, allowing itto learn a mapping function between them.\n\n---\n\n### 1. The Core Concept\nImagine you show a student photos of cats labeled \"Cat\" and dogs labeled \"Dog.\" Over time, they recognize patterns in the images that correlate with those labels. Eventually, when shown a new photo without a label, they can predict whether it's a cat or dog based on what they learned.\n\n*   **Input ($X$):** Features (e.g., pixel values, temperature).\n*   **Output ($y$):** Labels/Targets (e.g., \"Cat\", \"Dog\").\n*   **Goal:** Learn the function $f(X) \\approx y$.\n\n---\n\n### 2. Two Main Types of Supervised Learning\n\n#### A. Regression (Predicting Numbers)\nUsed when the output is a continuous value.\n*   *Example:* Predicting house prices based on square footage and location.\n*  *Output:* $\\$350",
+        "monitoring": {
+            "optimized": {
+                "path": "optimized",
+                "prompt_words": 71,
+                "model_tier": "small",
+                "model": "qwen3.5:4b",
+                "prompt_tokens": 135,
+                "completion_tokens": 256,
+                "total_tokens": 391,
+                "latency_ms": 5976.15,
+                "energy_proxy": 0.3128,
+                "energy_measured_j": 119.6487,
+                "completion": "# Supervised Learning: A Beginner's Guide\n\nSupervised learning is the most common type of machine learning. It works like **learning with an answer key**. You feed the model data where both the input (features) and the correct output (label/target) are known, allowing it to learn a mapping function between them.\n\n---\n\n### 1. The Core Concept\nImagine you show a student photos of cats labeled \"Cat\" and dogs labeled \"Dog.\" Over time, they recognize patterns in the images that correlate with those labels. Eventually, when shown a new photo withouta label, they can predict whether it's a cat or dog based on what they learned.\n\n*   **Input ($X$):** Features (e.g., pixel values, temperature).\n*   **Output ($y$):** Labels/Targets (e.g., \"Cat\", \"Dog\").\n*   **Goal:** Learn the function $f(X) \\approx y$.\n\n---\n\n### 2. Two MainTypes of Supervised Learning\n\n#### A. Regression (Predicting Numbers)\nUsed when the output isa continuous value.\n*   *Example:* Predicting house prices based on square footage and location.\n*   *Output:* $\\$350"
+            }
+        }
+    }
+}
