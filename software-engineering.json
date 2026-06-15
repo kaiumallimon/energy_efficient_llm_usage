@@ -1,0 +1,190 @@
+{
+    "raw": {
+        "path": "baseline",
+        "query": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could kindly explain to me, in a simple and concise manner, what Software Testing is and why it is considered important in modern software development",
+        "context": null,
+        "prompt_words": 78,
+        "llm": {
+            "model": "qwen3.5:4b",
+            "provider": "ollama",
+            "response": "Hello! It's great that you're reaching out early for your exam preparation; starting now gives you plenty of time. Don't worry if things feel rushed\u2014you've got this. Here is a simple breakdown to help you prepare:\n\n### What is Software Testing?\n\nIn the simplest terms, **software testing** is the process of finding errors (bugs) in software before it reaches customers. Imagine building a complex structure like a skyscraper; testing would be checking every beam and joint forweaknesses under stress *before* people move into it. Instead of relying on code reviews alone or guessing how well your program works, you test specific inputs to seeif the expected outputs are correct. It answers two main questions:\n1.  **Is something wrong?** (Validation)\n2.  **How do I know that this thing is right?**\n\nWhileoften used interchangeably with \"Quality Assurance,\" testing specifically focuseson identifying defects through execution and observation, rather than just creatinga process to prevent them entirely.\n\n### Why is it Important?\n\nIn modern development\u2014where software must be released constantly for apps like Instagram or banking systems\u2014the following factors make non-negotiable:\n\n*   **Trust & Safety**: Users rely blindly on this code. If an online bank's transaction system has bugs, the consequences can cost lives and destroy reputations immediately.\n*   **Performance Scaling**: Modern software needs to handle millions of users simultaneously without crashing or slowing down. Testing ensures stability under heavy load.\n*   **Efficiency & Cost Reduction**: Fixing a bug during development is cheap (e.g., $5 perhour); fixing it after launch can cost thousands times more due to recalls, lawsuits, and lost revenue. It's far better to catch issues *before* they become expensive problems later.\n\n### Quick Exam Tips\nKeep in mind these core concepts if the examasks for definitions:\n1.  **Testing \u2260 Checking**: You aren't just looking at code; you are performing specific activities (like testing, inspection, or analysis)with the intent of finding errors to prevent them from reaching users.\n2.  **Verification vs Validation**: \n    *   *Verifying*: \"Are we building the product right?\" (Did we follow specs?)  \n3.  **The Goal**: The ultimate aim is not just fixing bugs but providing confidence that the software works as intended without unnecessaryrisk to stakeholders, customers, or employees.\n\nGood luck with your exam! If you need more details on specific testing types like Unit Testing vs. Integration Testing in a few minutes later, let me know.",
+            "completion": "Hello! It's great that you're reaching out early for your exam preparation; starting now gives you plenty of time. Don't worry if things feel rushed\u2014you've got this. Here is a simple breakdown to help you prepare:\n\n### What is Software Testing?\n\nIn the simplest terms, **software testing** is the process offinding errors (bugs) in software before it reaches customers. Imagine building a complex structure like a skyscraper; testing would be checking every beam and joint for weaknesses under stress *before* people move into it. Instead of relying on code reviews alone or guessing how well your program works, you test specific inputs to see if the expected outputs are correct. It answers two main questions:\n1.  **Is something wrong?** (Validation)\n2.  **How do I know that this thing is right?**\n\nWhile often used interchangeably with \"Quality Assurance,\" testing specifically focuses on identifying defects through execution and observation, rather than just creating a process to prevent them entirely.\n\n### Why is it Important?\n\nIn modern development\u2014where software must be released constantly for apps like Instagram or banking systems\u2014the following factors make non-negotiable:\n\n*   **Trust & Safety**: Users rely blindly on this code. If an online bank's transaction system has bugs, the consequences can cost lives and destroy reputations immediately.\n*   **Performance Scaling**: Modern software needs to handle millions of users simultaneously without crashing or slowing down. Testing ensures stability under heavy load.\n*   **Efficiency & Cost Reduction**: Fixing a bug during development is cheap (e.g., $5 per hour); fixing it after launch can cost thousands times more due to recalls, lawsuits, and lost revenue. It's far better to catch issues *before* they become expensive problems later.\n\n### Quick Exam Tips\nKeep in mind these core concepts if the exam asks for definitions:\n1.  **Testing \u2260 Checking**: You aren't just looking at code; you are performing specific activities (like testing, inspection, or analysis) with the intent of finding errors to prevent them from reaching users.\n2.  **Verification vs Validation**: \n    *   *Verifying*: \"Are we building the product right?\" (Did we follow specs?)  \n3.  **The Goal**: The ultimate aim is not just fixingbugs but providing confidence that the software works as intended without unnecessary risk to stakeholders, customers, or employees.\n\nGood luck with your exam! If you need more details on specific testing types like Unit Testing vs. Integration Testing in a few minutes later, let me know.",
+            "thinking": null,
+            "usage": {
+                "prompt_tokens": 98,
+                "completion_tokens": 528,
+                "total_tokens": 626,
+                "thinking_enabled": false
+            },
+            "latency_ms": 9377.16,
+            "load_duration_ms": 259.02,
+            "eval_duration_ms": 6579.41,
+            "energy_proxy": 0.5008,
+            "energy_measured_j": 188.6034
+        },
+        "completion": "Hello! It's great that you're reaching out early for your exam preparation; starting now gives you plenty of time. Don't worry if things feel rushed\u2014you've got this. Here is a simple breakdown to help you prepare:\n\n### What is Software Testing?\n\nIn the simplest terms, **software testing** is the process of finding errors (bugs) in software before it reaches customers. Imagine building a complex structure like a skyscraper; testing would be checking every beam and joint forweaknesses under stress *before* people move into it. Instead of relying on code reviews alone or guessing how well your program works, you test specific inputs to seeif the expected outputs are correct. It answers two main questions:\n1.  **Is something wrong?** (Validation)\n2.  **How do I know that this thing is right?**\n\nWhileoften used interchangeably with \"Quality Assurance,\" testing specifically focuseson identifying defects through execution and observation, rather than just creatinga process to prevent them entirely.\n\n### Why is it Important?\n\nIn modern development\u2014where software must be released constantly for apps like Instagram or banking systems\u2014the following factors make non-negotiable:\n\n*   **Trust & Safety**: Users rely blindly on this code. If an online bank's transaction system has bugs, the consequences can cost lives and destroy reputations immediately.\n*   **Performance Scaling**: Modern software needs to handle millions of users simultaneously without crashing or slowing down. Testing ensures stability under heavy load.\n*   **Efficiency & Cost Reduction**: Fixing a bug during development is cheap (e.g., $5 perhour); fixing it after launch can cost thousands times more due to recalls, lawsuits, and lost revenue. It's far better to catch issues *before* they become expensive problems later.\n\n### Quick Exam Tips\nKeep in mind these core concepts if the examasks for definitions:\n1.  **Testing \u2260 Checking**: You aren't just looking at code; you are performing specific activities (like testing, inspection, or analysis)with the intent of finding errors to prevent them from reaching users.\n2.  **Verification vs Validation**: \n    *   *Verifying*: \"Are we building the product right?\" (Did we follow specs?)  \n3.  **The Goal**: The ultimate aim is not just fixing bugs but providing confidence that the software works as intended without unnecessaryrisk to stakeholders, customers, or employees.\n\nGood luck with your exam! If you need more details on specific testing types like Unit Testing vs. Integration Testing in a few minutes later, let me know.",
+        "monitoring": {
+            "baseline": {
+                "path": "baseline",
+                "prompt_words": 78,
+                "model_tier": null,
+                "model": "qwen3.5:4b",
+                "prompt_tokens": 98,
+                "completion_tokens": 528,
+                "total_tokens": 626,
+                "latency_ms": 9377.16,
+                "energy_proxy": 0.5008,
+                "energy_measured_j": null,
+                "completion": "Hello! It's great that you're reaching out early for your exampreparation; starting now gives you plenty of time. Don't worry if things feel rushed\u2014you've got this. Here is a simple breakdown to help you prepare:\n\n### Whatis Software Testing?\n\nIn the simplest terms, **software testing** is the process of finding errors (bugs) in software before it reaches customers. Imagine building acomplex structure like a skyscraper; testing would be checking every beam and jointfor weaknesses under stress *before* people move into it. Instead of relying on code reviews alone or guessing how well your program works, you test specific inputs tosee if the expected outputs are correct. It answers two main questions:\n1.  **Is something wrong?** (Validation)\n2.  **How do I know that this thing is right?**\n\nWhile often used interchangeably with \"Quality Assurance,\" testing specifically focuses on identifying defects through execution and observation, rather than just creating a process to prevent them entirely.\n\n### Why is it Important?\n\nIn modern development\u2014where software must be released constantly for apps like Instagram orbanking systems\u2014the following factors make non-negotiable:\n\n*   **Trust & Safety**: Users rely blindly on this code. If an online bank's transaction system has bugs, the consequences can cost lives and destroy reputations immediately.\n*   **Performance Scaling**: Modern software needs to handle millions of users simultaneously without crashing or slowing down. Testing ensures stability under heavy load.\n***Efficiency & Cost Reduction**: Fixing a bug during development is cheap (e.g., $5per hour); fixing it after launch can cost thousands times more due to recalls, lawsuits, and lost revenue. It's far better to catch issues *before* they become expensive problems later.\n\n### Quick Exam Tips\nKeep in mind these core concepts if the exam asks for definitions:\n1.  **Testing \u2260 Checking**: You aren't just lookingat code; you are performing specific activities (like testing, inspection, or analysis) with the intent of finding errors to prevent them from reaching users.\n2.  **Verification vs Validation**: \n    *   *Verifying*: \"Are we building the product right?\" (Did we follow specs?)  \n3.  **The Goal**: The ultimate aim is not just fixing bugs but providing confidence that the software works as intended without unnecessary risk to stakeholders, customers, or employees.\n\nGood luck with your exam! If you need more details on specific testing types like Unit Testing vs. Integration Testing in a few minutes later, let me know."
+            }
+        }
+    },
+    "framework": {
+        "analysis": {
+            "level": "low",
+            "score": 33.21,
+            "task_type": "educational",
+            "policy": "aggressive",
+            "confidence": 0.95,
+            "signals": {
+                "word_count": 78,
+                "sentence_count": 4,
+                "question_count": 0,
+                "task_type_scores": {
+                    "concept_explanation": 0.45,
+                    "reasoning": 0.7,
+                    "educational": 1.0
+                },
+                "reasoning_score": 0.5,
+                "constraint_score": 0.0,
+                "safety_score": 0.0,
+                "multi_part_score": 0.0,
+                "ambiguity_score": 0.45,
+                "retrieval_score": 0.25,
+                "filler_score": 0.24,
+                "repetition_score": 0.0,
+                "verbosity_score": 0.168,
+                "context_word_count": 0,
+                "context_ratio": 0.0
+            },
+            "rationale": [
+                "The user is asking for a definition of Software Testing. This falls under the category of 'definition' as it provides a clear, concise explanation.",
+                "Detected task type: educational.",
+                "Reasoning-oriented language detected.",
+                "Composite complexity score: 33.2 -> low."
+            ],
+            "intent_source": "ollama"
+        },
+        "decomposition": {
+            "intent": "ask",
+            "core_request": "{'user_prompt': 'Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could kindly explain to me, in a simple and concise manner, what Software Testing is and why it is considered important in modern software development'}",
+            "entities": [],
+            "constraints": [],
+            "redundant_segments": [],
+            "context_summary": "The user wants to know about Software Testing and its importance in modern software development.",
+            "requires_context": true,
+            "source": "ollama"
+        },
+        "optimization": {
+            "original_query": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I amcurrently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could kindly explain to me, in a simple and concise manner, what Software Testing is and why it is considered important in modern software development",
+            "optimized_query": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly.Because of this, I would be extremely grateful if you could explain in a simple and concise manner what Software Testing is and why it is considered important in modern software development",
+            "original_context": null,
+            "optimized_context": null,
+            "policy": "aggressive",
+            "complexity_level": "low",
+            "changes": [
+                "Applied Ollama semantic prompt compression.",
+                "Embedding similarity=0.999 (threshold=0.90)."
+            ],
+            "original_word_count": 78,
+            "optimized_word_count": 75,
+            "word_reduction_percent": 3.85,
+            "was_modified": true,
+            "optimizer_source": "llm",
+            "validation": {
+                "passed": true,
+                "similarity": 0.9987,
+                "threshold": 0.9,
+                "original_query": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could kindly explain to me, in a simple and concise manner, what Software Testing is and why it is considered important in modern software development",
+                "candidate_query": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. Iam currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could explain in a simple and concise manner what Software Testing is and why it is considered important in modern software development",
+                "accepted_query": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could explain in a simple and concise manner what Software Testing is and why it isconsidered important in modern software development",
+                "source": "embedding",
+                "notes": [
+                    "Embedding similarity=0.999 (threshold=0.90)."
+                ]
+            }
+        },
+        "generation": {
+            "system_prompt": "Teach the concept in a structured, easy-to-follow way. Be concise.",
+            "user_prompt": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could explain in a simple and concise manner what Software Testing is and why it is considered important in modern software development",
+            "context": null,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "Teach the concept in a structured, easy-to-follow way. Be concise."
+                },
+                {
+                    "role": "user",
+                    "content": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could explain in a simple and concise manner what Software Testing is and why it is considered important in modern software development"
+                }
+            ],
+            "full_prompt": "System:\nTeach the concept in a structured, easy-to-follow way. Be concise.\n\nUser:\nHello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could explain in a simple and concise manner what Software Testing is and why it is considered important in modern software development",
+            "model_tier": "small",
+            "template_id": "educational_aggressive",
+            "task_type": "educational",
+            "complexity_level": "low",
+            "policy": "aggressive",
+            "inference_params": {
+                "max_tokens": 256,
+                "temperature": 0.1,
+                "top_p": 0.85
+            },
+            "inference_options": {
+                "num_predict": 256,
+                "temperature": 0.1,
+                "top_p": 0.85
+            },
+            "sections": {
+                "query": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Becauseof this, I would be extremely grateful if you could explain in a simple and concise manner what Software Testing is and why it is considered important in modern software development",
+                "request": "Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could explain in a simple and concise manner what Software Testing is and why it is considered important in modern software development",
+                "intent": "ask",
+                "core_request": "{'user_prompt': 'Hello there. I hope you are doing well today. I have a question that I would really appreciate your help with. I am currently preparing for an examination related to software engineering, and unfortunately I have not had enough time to prepare properly. Because of this, I would be extremely grateful if you could kindly explain to me, in a simple and concise manner, what Software Testing is and why it is considered important in modern software development'}"
+            },
+            "notes": []
+        },
+        "llm": {
+            "model": "qwen3.5:4b",
+            "provider": "ollama",
+            "response": "Hello! It's great that you're preparing for your exam. Here is a concise breakdown of **Software Testing** to help you quickly grasp the core concepts:\n\n### What is Software Testing?\nSoftware testing is the systematic process of evaluating a product or component against its requirements and specifications with the goal of identifying defects (bugs) before they reach the end user. It involves executing code, analyzing results, and reporting issues rather than just \"trying to make it work.\"\n\n**Key Types:**\n*   **Unit Testing:** Checking individual components in isolation.\n*   **Integration Testing:** Verifying how different modules interact with each other.\n***System Testing:** Evaluating the complete system against requirements.\n*   **Acceptance Testing:** Confirming the software meets user needs (often by the client).\n\n### Why is it Important?\nIn modern development, testing acts as a critical quality gate for several reasons:\n\n1.  **Risk Mitigation:** It catches bugs early when they are cheaper and easier to fix than after deployment.\n2.  **User Trust & Satisfaction:** Defect-free software ensures reliability, preventing frustration or data loss for users.\n3.  **Cost Efficiency:** Fixing a bugduring testing costs significantly less (",
+            "completion": "Hello! It's great that you're preparing for your exam. Here is a concise breakdown of **Software Testing** to help you quickly grasp the core concepts:\n\n### What is Software Testing?\nSoftware testing is the systematic process of evaluating a product or component against its requirements and specifications with the goal of identifying defects (bugs) before they reach the end user. It involvesexecuting code, analyzing results, and reporting issues rather than just \"trying to make it work.\"\n\n**Key Types:**\n*   **Unit Testing:** Checking individual components in isolation.\n*   **Integration Testing:** Verifying how different modules interact with each other.\n*  **System Testing:** Evaluating the complete system against requirements.\n*   **Acceptance Testing:** Confirming the software meets userneeds (often by the client).\n\n### Why is it Important?\nIn modern development, testing acts as a critical quality gate for several reasons:\n\n1.  **Risk Mitigation:** It catches bugs early when they are cheaper and easier to fix than after deployment.\n2.  **User Trust & Satisfaction:** Defect-free software ensures reliability, preventing frustration or data loss for users.\n3.  **Cost Efficiency:** Fixing a bug during testing costs significantly less (",
+            "thinking": null,
+            "usage": {
+                "prompt_tokens": 114,
+                "completion_tokens": 256,
+                "total_tokens": 370,
+                "thinking_enabled": false
+            },
+            "latency_ms": 8769.16,
+            "load_duration_ms": 3378.57,
+            "eval_duration_ms": 3175.81,
+            "energy_proxy": 0.296,
+            "energy_measured_j": 176.7843
+        },
+        "completion": "Hello! It's great that you're preparing for your exam. Here is a concise breakdown of **Software Testing** to help you quickly grasp the core concepts:\n\n### What is Software Testing?\nSoftware testing is the systematic process of evaluating a product or component against its requirements and specifications with the goal of identifying defects (bugs) before they reach the end user. It involves executing code, analyzing results, and reporting issues rather than just \"trying to make it work.\"\n\n**Key Types:**\n*   **Unit Testing:** Checking individual components in isolation.\n*   **Integration Testing:** Verifying how different modules interact with each other.\n***System Testing:** Evaluating the complete system against requirements.\n*   **Acceptance Testing:** Confirming the software meets user needs (often by the client).\n\n### Why is it Important?\nIn modern development, testing acts as a critical quality gate for several reasons:\n\n1.  **Risk Mitigation:** It catches bugs early when they are cheaper and easier to fix than after deployment.\n2.  **User Trust & Satisfaction:** Defect-free software ensures reliability, preventing frustration or data loss for users.\n3.  **Cost Efficiency:** Fixing a bugduring testing costs significantly less (",
+        "monitoring": {
+            "optimized": {
+                "path": "optimized",
+                "prompt_words": 75,
+                "model_tier": "small",
+                "model": "qwen3.5:4b",
+                "prompt_tokens": 114,
+                "completion_tokens": 256,
+                "total_tokens": 370,
+                "latency_ms": 8769.16,
+                "energy_proxy": 0.296,
+                "energy_measured_j": 176.7843,
+                "completion": "Hello! It's great that you're preparing for your exam. Here is a concise breakdown of **Software Testing** to help you quickly grasp the core concepts:\n\n### What is Software Testing?\nSoftware testing is the systematic process of evaluating a product or component against its requirements and specifications with the goal of identifying defects (bugs) before they reach the end user. It involves executing code, analyzing results, and reporting issues rather than just \"trying to make it work.\"\n\n**Key Types:**\n*   **Unit Testing:** Checking individual components in isolation.\n*   **Integration Testing:** Verifying how different modules interact with each other.\n*   **System Testing:** Evaluating the complete system against requirements.\n*   **Acceptance Testing:** Confirming the software meets user needs (often by the client).\n\n### Why is it Important?\nIn modern development, testing acts as a critical quality gate for several reasons:\n\n1.  **Risk Mitigation:** It catches bugs early when they are cheaper and easier to fix than after deployment.\n2.  **User Trust & Satisfaction:** Defect-free software ensures reliability, preventing frustration or data loss for users.\n3.  **Cost Efficiency:** Fixing abug during testing costs significantly less ("
+            }
+        }
+    }
+}
